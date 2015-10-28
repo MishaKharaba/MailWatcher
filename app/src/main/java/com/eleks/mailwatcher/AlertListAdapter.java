@@ -58,6 +58,29 @@ public class AlertListAdapter extends BaseAdapter
         AlertModel model = (AlertModel) getItem(position);
         TextView txtName = (TextView) view.findViewById(R.id.alert_item_name);
         txtName.setText(model.name);
+
+        view.setTag(Long.valueOf(model.id));
+        view.setOnClickListener(new View.OnClickListener()
+        {
+
+            @Override
+            public void onClick(View view)
+            {
+                ((AlertListActivity) mContext).startAlertDetailsActivity(((Long) view.getTag()).longValue());
+            }
+        });
+
+        view.setOnLongClickListener(new View.OnLongClickListener()
+        {
+
+            @Override
+            public boolean onLongClick(View view)
+            {
+                ((AlertListActivity) mContext).deleteAlarm(((Long) view.getTag()).longValue());
+                return true;
+            }
+        });
+
         return view;
     }
 }

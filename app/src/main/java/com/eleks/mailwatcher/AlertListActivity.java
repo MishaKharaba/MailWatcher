@@ -1,8 +1,10 @@
 package com.eleks.mailwatcher;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -67,12 +69,51 @@ public class AlertListActivity extends AppCompatActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings)
+        switch (item.getItemId())
         {
-            return true;
+            case R.id.action_add_new_alert:
+            {
+                startAlertDetailsActivity(-1);
+                return true;
+            }
+            case R.id.action_settings:
+            {
+                return true;
+            }
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void startAlertDetailsActivity(long id)
+    {
+
+    }
+
+    public void deleteAlarm(long id)
+    {
+        final long alarmId = id;
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Please confirm")
+                .setTitle("Delete set?")
+                .setCancelable(true)
+                .setNegativeButton("Cancel", null)
+                .setPositiveButton("Ok", new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which)
+                    {
+                        //Cancel Alarms
+                        //AlarmManagerHelper.cancelAlarms(mContext);
+                        //Delete alarm from DB by id
+                        //dbHelper.deleteAlarm(alarmId);
+                        //Refresh the list of the alarms in the adaptor
+                        //mAdapter.setAlarms(dbHelper.getAlarms());
+                        //Notify the adapter the data has changed
+                        mAdapter.notifyDataSetChanged();
+                        //Set the alarms
+                        //AlarmManagerHelper.setAlarms(mContext);
+                    }
+                }).show();
     }
 }

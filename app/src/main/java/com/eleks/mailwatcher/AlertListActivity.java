@@ -1,6 +1,7 @@
 package com.eleks.mailwatcher;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -84,7 +85,9 @@ public class AlertListActivity extends AppCompatActivity
 
     public void startAlertDetailsActivity(long id)
     {
-
+        Intent intent = new Intent(this, AlertDetailsActivity.class);
+        intent.putExtra("id", id);
+        startActivityForResult(intent, 0);
     }
 
     public void deleteAlarm(long id)

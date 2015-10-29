@@ -3,7 +3,7 @@
     package="com.eleks.mailwatcher" >
 
     <application
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
@@ -17,6 +17,15 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".AlertDetailsActivity"
+            android:label="@string/title_activity_alert_details"
+            android:parentActivityName=".AlertListActivity"
+            android:theme="@style/AppTheme.NoActionBar" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.eleks.mailwatcher.AlertListActivity" />
         </activity>
     </application>
 

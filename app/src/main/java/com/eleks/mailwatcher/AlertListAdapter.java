@@ -14,11 +14,16 @@ import java.util.List;
 public class AlertListAdapter extends BaseAdapter
 {
     private final Context mContext;
-    private final List<AlertModel> mAlerts;
+    private List<AlertModel> mAlerts;
 
     public AlertListAdapter(Context context, List<AlertModel> alerts)
     {
         mContext = context;
+        mAlerts = alerts;
+    }
+
+    public void setAlerts(List<AlertModel> alerts)
+    {
         mAlerts = alerts;
     }
 

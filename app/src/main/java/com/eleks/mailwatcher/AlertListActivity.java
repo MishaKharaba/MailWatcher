@@ -14,6 +14,7 @@ import android.widget.HeaderViewListAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
+import com.eleks.mailwatcher.model.AlertDBHelper;
 import com.eleks.mailwatcher.model.AlertModel;
 
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ public class AlertListActivity extends AppCompatActivity
 {
     private ListView mListView;
     private AlertListAdapter mAdapter;
+    private AlertDBHelper dbHelper = new AlertDBHelper(this);
 
     protected void setListAdapter(ListAdapter adapter)
     {
@@ -49,7 +51,7 @@ public class AlertListActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         mListView = (ListView) findViewById(android.R.id.list);
-        mAdapter = new AlertListAdapter(this, AlertModel.create());
+        mAdapter = new AlertListAdapter(this, dbHelper.getAlerts());
         setListAdapter(mAdapter);
     }
 
@@ -64,11 +66,6 @@ public class AlertListActivity extends AppCompatActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
         switch (item.getItemId())
         {
             case R.id.action_add_new_alert:
@@ -92,7 +89,7 @@ public class AlertListActivity extends AppCompatActivity
 
     public void deleteAlarm(long id)
     {
-        final long alarmId = id;
+        final long alertId = id;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage("Please confirm")
                 .setTitle("Delete set?")
@@ -105,11 +102,9 @@ public class AlertListActivity extends AppCompatActivity
                     {
                         //Cancel Alarms
                         //AlarmManagerHelper.cancelAlarms(mContext);
-                        //Delete alarm from DB by id
-                        //dbHelper.deleteAlarm(alarmId);
+                        dbHelper.deleteAlert(alertId);
                         //Refresh the list of the alarms in the adaptor
-                        //mAdapter.setAlarms(dbHelper.getAlarms());
-                        //Notify the adapter the data has changed
+                        mAdapter.setAlerts(dbHelper.getAlerts());
                         mAdapter.notifyDataSetChanged();
                         //Set the alarms
                         //AlarmManagerHelper.setAlarms(mContext);

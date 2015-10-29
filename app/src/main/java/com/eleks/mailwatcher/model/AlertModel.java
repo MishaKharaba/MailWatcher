@@ -12,13 +12,17 @@ public class AlertModel
     public Uri alarmTone;
     public boolean isEnabled;
 
+    public AlertModel(long id)
+    {
+        this.id = id;
+    }
+
     public static List<AlertModel> create()
     {
         List<AlertModel> result = new ArrayList<>();
         for (int i = 1; i < 20; i++)
         {
-            AlertModel model = new AlertModel();
-            model.id = i;
+            AlertModel model = new AlertModel(i);
             model.name = "Name " + i;
             result.add(model);
         }

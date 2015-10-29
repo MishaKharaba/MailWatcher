@@ -54,8 +54,8 @@ public class AlertDBHelper extends SQLiteOpenHelper
 
     private AlertModel loadModel(Cursor c)
     {
-        AlertModel model = new AlertModel();
-        model.id = c.getLong(c.getColumnIndex(Alert._ID));
+        long id = c.getLong(c.getColumnIndex(Alert._ID));
+        AlertModel model = new AlertModel(id);
         model.name = c.getString(c.getColumnIndex(Alert.COLUMN_NAME_ALERT_NAME));
         model.alarmTone = !"".equals(c.getString(c.getColumnIndex(Alert.COLUMN_NAME_ALERT_TONE)))
                 ? Uri.parse(c.getString(c.getColumnIndex(Alert.COLUMN_NAME_ALERT_TONE))) : null;
@@ -75,14 +75,17 @@ public class AlertDBHelper extends SQLiteOpenHelper
     public long createAlert(AlertModel model)
     {
         ContentValues values = loadContent(model);
-        return getWritableDatabase().insert(Alert.TABLE_NAME, null, values);
+        long id = getWritableDatabase().insert(Alert.TABLE_NAME, null, values);
+        model.id = id;
+        return id;
     }
 
-    public long updateAlert(AlertModel model)
+    public int updateAlert(AlertModel model)
     {
         ContentValues values = loadContent(model);
-        return getWritableDatabase().update(Alert.TABLE_NAME, values,
+        int nRows = getWritableDatabase().update(Alert.TABLE_NAME, values,
                 Alert._ID + " = ?", new String[]{String.valueOf(model.id)});
+        return nRows;
     }
 
     public AlertModel getAlert(long id)

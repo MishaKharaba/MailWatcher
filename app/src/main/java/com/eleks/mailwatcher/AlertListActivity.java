@@ -83,11 +83,32 @@ public class AlertListActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK)
+        {
+            mAdapter.setAlerts(dbHelper.getAlerts());
+            mAdapter.notifyDataSetChanged();
+        }
+    }
+
     public void startAlertDetailsActivity(long id)
     {
         Intent intent = new Intent(this, AlertDetailsActivity.class);
         intent.putExtra("id", id);
         startActivityForResult(intent, 0);
+    }
+
+    public void setAlertEnabled(long id, boolean isEnabled)
+    {
+        AlertModel alert = dbHelper.getAlert(id);
+        alert.isEnabled = isEnabled;
+        dbHelper.updateAlert(alert);
+
+        mAdapter.setAlerts(dbHelper.getAlerts());
+        mAdapter.notifyDataSetChanged();
     }
 
     public void deleteAlarm(long id)

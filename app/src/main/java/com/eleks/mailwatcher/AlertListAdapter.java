@@ -1,11 +1,14 @@
 package com.eleks.mailwatcher;
 
 import android.content.Context;
+import android.media.RingtoneManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.CompoundButton;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import com.eleks.mailwatcher.model.AlertModel;
 
@@ -60,14 +63,29 @@ public class AlertListAdapter extends BaseAdapter
             view = inflater.inflate(R.layout.alert_list_item, parent, false);
         }
 
-        AlertModel model = (AlertModel) getItem(position);
-        TextView txtName = (TextView) view.findViewById(R.id.alert_item_name);
-        txtName.setText(model.name);
+        AlertModel alert = (AlertModel) getItem(position);
 
-        view.setTag(Long.valueOf(model.id));
+        TextView txtName = (TextView) view.findViewById(R.id.alert_item_name);
+        txtName.setText(alert.name);
+
+        TextView txtTone = (TextView) view.findViewById(R.id.alarm_label_tone_selection);
+        txtTone.setText(RingtoneManager.getRingtone(mContext, alert.alarmTone).getTitle(mContext));
+
+        ToggleButton btnEnabled = (ToggleButton) view.findViewById(R.id.alert_item_toggle);
+        btnEnabled.setChecked(alert.isEnabled);
+        btnEnabled.setTag(alert.id);
+        btnEnabled.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
+        {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+            {
+                ((AlertListActivity) mContext).setAlertEnabled(((Long) buttonView.getTag()).longValue(), isChecked);
+            }
+        });
+
+        view.setTag(Long.valueOf(alert.id));
         view.setOnClickListener(new View.OnClickListener()
         {
-
             @Override
             public void onClick(View view)
             {
@@ -77,7 +95,6 @@ public class AlertListAdapter extends BaseAdapter
 
         view.setOnLongClickListener(new View.OnLongClickListener()
         {
-
             @Override
             public boolean onLongClick(View view)
             {

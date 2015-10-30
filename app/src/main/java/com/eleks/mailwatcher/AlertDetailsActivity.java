@@ -39,8 +39,8 @@ public class AlertDetailsActivity extends AppCompatActivity
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-        final TextView txtToneSelection = (TextView) findViewById(R.id.alarm_label_tone_selection);
-        txtToneSelection.setOnClickListener(new View.OnClickListener()
+        final View toneSelector = findViewById(R.id.alarm_tone);
+        toneSelector.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
@@ -51,7 +51,7 @@ public class AlertDetailsActivity extends AppCompatActivity
                 intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE,
                         RingtoneManager.TYPE_ALL);
                 intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI,
-                        (Parcelable) txtToneSelection.getTag());
+                        (Parcelable) toneSelector.getTag());
                 startActivityForResult(intent, 1);
             }
         });
@@ -73,8 +73,9 @@ public class AlertDetailsActivity extends AppCompatActivity
     {
         EditText edtName = (EditText) findViewById(R.id.alert_details_name);
         edtName.setText(alert.name);
+        View toneSelector = findViewById(R.id.alarm_tone);
+        toneSelector.setTag(alert.alarmTone);
         TextView txtToneSelection = (TextView) findViewById(R.id.alarm_label_tone_selection);
-        txtToneSelection.setTag(alert.alarmTone);
         txtToneSelection.setText(RingtoneManager.getRingtone(this, alert.alarmTone).getTitle(this));
     }
 
@@ -82,8 +83,8 @@ public class AlertDetailsActivity extends AppCompatActivity
     {
         EditText edtName = (EditText) findViewById(R.id.alert_details_name);
         alert.name = edtName.getText().toString();
-        TextView txtToneSelection = (TextView) findViewById(R.id.alarm_label_tone_selection);
-        alert.alarmTone = (Uri) txtToneSelection.getTag();
+        View toneSelector = findViewById(R.id.alarm_tone);
+        alert.alarmTone = (Uri) toneSelector.getTag();
     }
 
     @Override
@@ -104,8 +105,9 @@ public class AlertDetailsActivity extends AppCompatActivity
                 case 1:
                 {
                     Uri uri = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
+                    View toneSelector = findViewById(R.id.alarm_tone);
+                    toneSelector.setTag(uri);
                     TextView txtToneSelection = (TextView) findViewById(R.id.alarm_label_tone_selection);
-                    txtToneSelection.setTag(uri);
                     txtToneSelection.setText(RingtoneManager.getRingtone(this, uri).getTitle(this));
                     break;
                 }

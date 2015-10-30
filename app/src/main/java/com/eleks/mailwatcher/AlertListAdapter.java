@@ -1,6 +1,7 @@
 package com.eleks.mailwatcher;
 
 import android.content.Context;
+import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -69,7 +70,8 @@ public class AlertListAdapter extends BaseAdapter
         txtName.setText(alert.name);
 
         TextView txtTone = (TextView) view.findViewById(R.id.alarm_label_tone_selection);
-        txtTone.setText(RingtoneManager.getRingtone(mContext, alert.alarmTone).getTitle(mContext));
+        Ringtone ringtone = RingtoneManager.getRingtone(mContext, alert.alarmTone);
+        txtTone.setText(ringtone.getTitle(mContext));
 
         ToggleButton btnEnabled = (ToggleButton) view.findViewById(R.id.alert_item_toggle);
         btnEnabled.setChecked(alert.isEnabled);
@@ -79,17 +81,17 @@ public class AlertListAdapter extends BaseAdapter
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
             {
-                ((AlertListActivity) mContext).setAlertEnabled(((Long) buttonView.getTag()).longValue(), isChecked);
+                ((AlertListActivity) mContext).setAlertEnabled((Long) buttonView.getTag(), isChecked);
             }
         });
 
-        view.setTag(Long.valueOf(alert.id));
+        view.setTag(alert.id);
         view.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View view)
             {
-                ((AlertListActivity) mContext).startAlertDetailsActivity(((Long) view.getTag()).longValue());
+                ((AlertListActivity) mContext).startAlertDetailsActivity((Long) view.getTag());
             }
         });
 
@@ -98,7 +100,7 @@ public class AlertListAdapter extends BaseAdapter
             @Override
             public boolean onLongClick(View view)
             {
-                ((AlertListActivity) mContext).deleteAlarm(((Long) view.getTag()).longValue());
+                ((AlertListActivity) mContext).deleteAlarm((Long) view.getTag());
                 return true;
             }
         });

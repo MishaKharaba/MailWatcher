@@ -17,6 +17,7 @@ import android.widget.ListView;
 
 import com.eleks.mailwatcher.model.AlertDBHelper;
 import com.eleks.mailwatcher.model.AlertModel;
+import com.eleks.mailwatcher.service.AlertService;
 
 import java.util.ArrayList;
 
@@ -54,6 +55,7 @@ public class AlertListActivity extends AppCompatActivity
         mListView = (ListView) findViewById(android.R.id.list);
         mAdapter = new AlertListAdapter(this, dbHelper.getAlerts());
         setListAdapter(mAdapter);
+        AlertService.update(this);
     }
 
     @Override
@@ -91,6 +93,7 @@ public class AlertListActivity extends AppCompatActivity
         {
             mAdapter.setAlerts(dbHelper.getAlerts());
             mAdapter.notifyDataSetChanged();
+            AlertService.update(this);
         }
     }
 
@@ -109,12 +112,13 @@ public class AlertListActivity extends AppCompatActivity
 
         mAdapter.setAlerts(dbHelper.getAlerts());
         mAdapter.notifyDataSetChanged();
+        AlertService.update(this);
     }
 
     public void deleteAlarm(long id)
     {
         final long alertId = id;
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage("Please confirm")
                 .setTitle("Delete set?")
                 .setCancelable(true)
@@ -124,14 +128,10 @@ public class AlertListActivity extends AppCompatActivity
                     @Override
                     public void onClick(DialogInterface dialog, int which)
                     {
-                        //Cancel Alarms
-                        //AlarmManagerHelper.cancelAlarms(mContext);
                         dbHelper.deleteAlert(alertId);
-                        //Refresh the list of the alarms in the adaptor
                         mAdapter.setAlerts(dbHelper.getAlerts());
                         mAdapter.notifyDataSetChanged();
-                        //Set the alarms
-                        //AlarmManagerHelper.setAlarms(mContext);
+                        AlertService.update(builder.getContext());
                     }
                 }).show();
     }

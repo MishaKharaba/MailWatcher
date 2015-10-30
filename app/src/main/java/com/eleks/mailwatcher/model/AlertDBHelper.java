@@ -121,4 +121,17 @@ public class AlertDBHelper extends SQLiteOpenHelper
     {
         return getWritableDatabase().delete(Alert.TABLE_NAME, Alert._ID + " = ?", new String[]{String.valueOf(id)});
     }
+
+    public boolean hasActiveAlerts()
+    {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String select = "SELECT 1 FROM " + Alert.TABLE_NAME + " WHERE " + Alert.COLUMN_NAME_ALERT_ENABLED + " <> 0";
+        Cursor c = db.rawQuery(select, null);
+        if (c.moveToNext())
+        {
+            return true;
+        }
+        return false;
+    }
+
 }

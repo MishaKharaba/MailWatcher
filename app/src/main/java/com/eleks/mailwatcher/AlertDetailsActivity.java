@@ -6,14 +6,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.provider.Settings;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -24,6 +23,7 @@ public class AlertDetailsActivity extends AppCompatActivity
 {
     private AlertDBHelper dbHelper = new AlertDBHelper(this);
     private AlertModel alert;
+    private GmailAccountSelector gmailAccountSelector = new GmailAccountSelector(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -55,6 +55,16 @@ public class AlertDetailsActivity extends AppCompatActivity
                 startActivityForResult(intent, 1);
             }
         });
+        Button selectAccount = (Button) findViewById(R.id.account_selector);
+        selectAccount.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                startAccountSelector();
+            }
+        });
+
         long id = getIntent().getExtras().getLong("id");
 
         if (id < 0)
@@ -77,6 +87,10 @@ public class AlertDetailsActivity extends AppCompatActivity
         toneSelector.setTag(alert.alarmTone);
         TextView txtToneSelection = (TextView) findViewById(R.id.alarm_label_tone_selection);
         txtToneSelection.setText(RingtoneManager.getRingtone(this, alert.alarmTone).getTitle(this));
+        EditText edtAccount = (EditText) findViewById(R.id.alert_account_name);
+        edtAccount.setText(alert.userAccount);
+        EditText edtLabelName = (EditText) findViewById(R.id.alert_label_name);
+        edtLabelName.setText(alert.labelName);
     }
 
     private void viewToAlert(AlertModel alert)
@@ -85,6 +99,10 @@ public class AlertDetailsActivity extends AppCompatActivity
         alert.name = edtName.getText().toString();
         View toneSelector = findViewById(R.id.alarm_tone);
         alert.alarmTone = (Uri) toneSelector.getTag();
+        EditText edtAccount = (EditText) findViewById(R.id.alert_account_name);
+        alert.userAccount = edtAccount.getText().toString();
+        EditText edtLabelName = (EditText) findViewById(R.id.alert_label_name);
+        alert.labelName = edtLabelName.getText().toString();
     }
 
     @Override
@@ -94,10 +112,28 @@ public class AlertDetailsActivity extends AppCompatActivity
         return true;
     }
 
+    private void startAccountSelector()
+    {
+        EditText account = (EditText) findViewById(R.id.alert_account_name);
+        gmailAccountSelector.Select(account.getText().toString());
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
         super.onActivityResult(requestCode, resultCode, data);
+
+        if (gmailAccountSelector.onActivityResult(requestCode, resultCode, data))
+        {
+
+            if (resultCode == RESULT_OK)
+            {
+                EditText account = (EditText) findViewById(R.id.alert_account_name);
+                account.setText(gmailAccountSelector.getmAccountName());
+            }
+            return; //handled
+        }
+
         if (resultCode == RESULT_OK)
         {
             switch (requestCode)
@@ -142,6 +178,7 @@ public class AlertDetailsActivity extends AppCompatActivity
                 }
                 setResult(RESULT_OK);
                 finish();
+                break;
             }
         }
 

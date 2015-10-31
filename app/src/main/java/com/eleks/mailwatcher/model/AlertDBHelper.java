@@ -13,23 +13,29 @@ import java.util.List;
 
 public class AlertDBHelper extends SQLiteOpenHelper
 {
-    public static final int DATABASE_VERSION = 1;
+    public static final int DATABASE_VERSION = 3;
     public static final String DATABASE_NAME = "mailwatcher.db";
 
     public static abstract class Alert implements BaseColumns
     {
         public static final String TABLE_NAME = "alert";
         public static final String _ID = "id";
-        public static final String COLUMN_NAME_ALERT_NAME = "name";
-        public static final String COLUMN_NAME_ALERT_TONE = "tone";
-        public static final String COLUMN_NAME_ALERT_ENABLED = "enabled";
+        public static final String COLUMN_NAME = "name";
+        public static final String COLUMN_ALARM_TONE = "tone";
+        public static final String COLUMN_ENABLED = "enabled";
+        public static final String COLUMN_USER_ACCOUNT = "userAccount";
+        public static final String COLUMN_LABEL_ID = "labelId";
+        public static final String COLUMN_LABEL_NAME = "labelName";
     }
 
     private static final String SQL_CREATE_ALERT = "CREATE TABLE " + Alert.TABLE_NAME + " (" +
             Alert._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-            Alert.COLUMN_NAME_ALERT_NAME + " TEXT," +
-            Alert.COLUMN_NAME_ALERT_TONE + " TEXT," +
-            Alert.COLUMN_NAME_ALERT_ENABLED + " BOOLEAN" +
+            Alert.COLUMN_NAME + " TEXT," +
+            Alert.COLUMN_ALARM_TONE + " TEXT," +
+            Alert.COLUMN_ENABLED + " BOOLEAN," +
+            Alert.COLUMN_USER_ACCOUNT + " TEXT," +
+            Alert.COLUMN_LABEL_ID + " TEXT," +
+            Alert.COLUMN_LABEL_NAME + " TEXT" +
             " )";
 
     private static final String SQL_DELETE_ALERT = "DROP TABLE IF EXISTS " + Alert.TABLE_NAME;
@@ -56,26 +62,32 @@ public class AlertDBHelper extends SQLiteOpenHelper
     {
         long id = c.getLong(c.getColumnIndex(Alert._ID));
         AlertModel model = new AlertModel(id);
-        model.name = c.getString(c.getColumnIndex(Alert.COLUMN_NAME_ALERT_NAME));
-        model.alarmTone = !"".equals(c.getString(c.getColumnIndex(Alert.COLUMN_NAME_ALERT_TONE)))
-                ? Uri.parse(c.getString(c.getColumnIndex(Alert.COLUMN_NAME_ALERT_TONE))) : null;
-        model.isEnabled = c.getInt(c.getColumnIndex(Alert.COLUMN_NAME_ALERT_ENABLED)) != 0;
+        model.name = c.getString(c.getColumnIndex(Alert.COLUMN_NAME));
+        model.alarmTone = !"".equals(c.getString(c.getColumnIndex(Alert.COLUMN_ALARM_TONE)))
+                ? Uri.parse(c.getString(c.getColumnIndex(Alert.COLUMN_ALARM_TONE))) : null;
+        model.isEnabled = c.getInt(c.getColumnIndex(Alert.COLUMN_ENABLED)) != 0;
+        model.userAccount = c.getString(c.getColumnIndex(Alert.COLUMN_USER_ACCOUNT));
+        model.labelId = c.getString(c.getColumnIndex(Alert.COLUMN_LABEL_ID));
+        model.labelName = c.getString(c.getColumnIndex(Alert.COLUMN_LABEL_NAME));
         return model;
     }
 
     private ContentValues loadContent(AlertModel model)
     {
         ContentValues values = new ContentValues();
-        values.put(Alert.COLUMN_NAME_ALERT_NAME, model.name);
-        values.put(Alert.COLUMN_NAME_ALERT_TONE, (model.alarmTone != null) ? model.alarmTone.toString() : "");
-        values.put(Alert.COLUMN_NAME_ALERT_ENABLED, model.isEnabled);
+        values.put(Alert.COLUMN_NAME, model.name);
+        values.put(Alert.COLUMN_ALARM_TONE, (model.alarmTone != null) ? model.alarmTone.toString() : "");
+        values.put(Alert.COLUMN_ENABLED, model.isEnabled);
+        values.put(Alert.COLUMN_USER_ACCOUNT, model.userAccount);
+        values.put(Alert.COLUMN_LABEL_ID, model.labelId);
+        values.put(Alert.COLUMN_LABEL_NAME, model.labelName);
         return values;
     }
 
     public long createAlert(AlertModel model)
     {
         ContentValues values = loadContent(model);
-        long id = getWritableDatabase().insert(Alert.TABLE_NAME, null, values);
+        long id = getWritableDatabase().insertOrThrow(Alert.TABLE_NAME, null, values);
         model.id = id;
         return id;
     }
@@ -125,7 +137,7 @@ public class AlertDBHelper extends SQLiteOpenHelper
     public boolean hasActiveAlerts()
     {
         SQLiteDatabase db = this.getReadableDatabase();
-        String select = "SELECT 1 FROM " + Alert.TABLE_NAME + " WHERE " + Alert.COLUMN_NAME_ALERT_ENABLED + " <> 0";
+        String select = "SELECT 1 FROM " + Alert.TABLE_NAME + " WHERE " + Alert.COLUMN_ENABLED + " <> 0";
         Cursor c = db.rawQuery(select, null);
         if (c.moveToNext())
         {

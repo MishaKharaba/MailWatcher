@@ -12,6 +12,10 @@ public class AlertModel
     public Uri alarmTone;
     public boolean isEnabled;
 
+    public String userAccount;
+    public String labelId;
+    public String labelName;
+
     public AlertModel(long id)
     {
         this.id = id;

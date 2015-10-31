@@ -19,31 +19,11 @@ import com.eleks.mailwatcher.model.AlertDBHelper;
 import com.eleks.mailwatcher.model.AlertModel;
 import com.eleks.mailwatcher.service.AlertService;
 
-import java.util.ArrayList;
-
 public class AlertListActivity extends AppCompatActivity
 {
     private ListView mListView;
     private AlertListAdapter mAdapter;
     private AlertDBHelper dbHelper = new AlertDBHelper(this);
-
-    protected void setListAdapter(ListAdapter adapter)
-    {
-        mListView.setAdapter(adapter);
-    }
-
-    protected ListAdapter getListAdapter()
-    {
-        ListAdapter adapter = mListView.getAdapter();
-        if (adapter instanceof HeaderViewListAdapter)
-        {
-            return ((HeaderViewListAdapter) adapter).getWrappedAdapter();
-        }
-        else
-        {
-            return adapter;
-        }
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -54,7 +34,7 @@ public class AlertListActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
         mListView = (ListView) findViewById(android.R.id.list);
         mAdapter = new AlertListAdapter(this, dbHelper.getAlerts());
-        setListAdapter(mAdapter);
+        mListView.setAdapter(mAdapter);
         AlertService.update(this);
     }
 

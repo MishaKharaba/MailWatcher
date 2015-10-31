@@ -18,15 +18,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
         android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:ems="10"
         android:hint="@string/alert_name"/>
-
-    <View
-        android:id="@+id/divider4"
-        style="@style/Divider"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/alert_details_name"/>
 
     <LinearLayout
         android:id="@+id/alarm_tone"
@@ -34,7 +26,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/divider4"
+        android:layout_below="@id/alert_details_name"
         android:orientation="vertical">
 
         <TextView
@@ -53,5 +45,35 @@
             android:text="@string/select_alarm_tone"
             android:textSize="14sp"/>
     </LinearLayout>
+
+    <EditText
+        android:id="@+id/alert_account_name"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/alarm_tone"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:layout_toLeftOf="@+id/account_selector"
+        android:layout_toStartOf="@+id/account_selector"
+        android:hint="@string/account_name"/>
+
+    <Button
+        android:id="@+id/account_selector"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/alarm_tone"
+        android:text="Select\nAccount"
+        />
+
+    <EditText
+        android:id="@+id/alert_label_name"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/alert_account_name"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:hint="@string/label_name"/>
 
 </RelativeLayout>

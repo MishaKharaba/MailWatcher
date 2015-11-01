@@ -13,7 +13,7 @@ import java.util.List;
 
 public class AlertDBHelper extends SQLiteOpenHelper
 {
-    public static final int DATABASE_VERSION = 3;
+    public static final int DATABASE_VERSION = 4;
     public static final String DATABASE_NAME = "mailwatcher.db";
 
     public static abstract class Alert implements BaseColumns
@@ -26,6 +26,7 @@ public class AlertDBHelper extends SQLiteOpenHelper
         public static final String COLUMN_USER_ACCOUNT = "userAccount";
         public static final String COLUMN_LABEL_ID = "labelId";
         public static final String COLUMN_LABEL_NAME = "labelName";
+        public static final String COLUMN_HISTORY_ID = "historyId";
     }
 
     private static final String SQL_CREATE_ALERT = "CREATE TABLE " + Alert.TABLE_NAME + " (" +
@@ -35,7 +36,8 @@ public class AlertDBHelper extends SQLiteOpenHelper
             Alert.COLUMN_ENABLED + " BOOLEAN," +
             Alert.COLUMN_USER_ACCOUNT + " TEXT," +
             Alert.COLUMN_LABEL_ID + " TEXT," +
-            Alert.COLUMN_LABEL_NAME + " TEXT" +
+            Alert.COLUMN_LABEL_NAME + " TEXT," +
+            Alert.COLUMN_HISTORY_ID + " TEXT" +
             " )";
 
     private static final String SQL_DELETE_ALERT = "DROP TABLE IF EXISTS " + Alert.TABLE_NAME;
@@ -69,6 +71,7 @@ public class AlertDBHelper extends SQLiteOpenHelper
         model.userAccount = c.getString(c.getColumnIndex(Alert.COLUMN_USER_ACCOUNT));
         model.labelId = c.getString(c.getColumnIndex(Alert.COLUMN_LABEL_ID));
         model.labelName = c.getString(c.getColumnIndex(Alert.COLUMN_LABEL_NAME));
+        model.historyId = c.getString(c.getColumnIndex(Alert.COLUMN_HISTORY_ID));
         return model;
     }
 
@@ -81,6 +84,7 @@ public class AlertDBHelper extends SQLiteOpenHelper
         values.put(Alert.COLUMN_USER_ACCOUNT, model.userAccount);
         values.put(Alert.COLUMN_LABEL_ID, model.labelId);
         values.put(Alert.COLUMN_LABEL_NAME, model.labelName);
+        values.put(Alert.COLUMN_HISTORY_ID, model.historyId);
         return values;
     }
 

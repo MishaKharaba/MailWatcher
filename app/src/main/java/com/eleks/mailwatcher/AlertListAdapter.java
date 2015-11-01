@@ -73,6 +73,12 @@ public class AlertListAdapter extends BaseAdapter
         Ringtone ringtone = RingtoneManager.getRingtone(mContext, alert.alarmTone);
         txtTone.setText(ringtone.getTitle(mContext));
 
+        TextView txtAccount = (TextView) view.findViewById(R.id.alert_account_name);
+        txtAccount.setText(alert.userAccount);
+
+        TextView txtLabel = (TextView) view.findViewById(R.id.alert_label_name);
+        txtLabel.setText(alert.labelName);
+
         ToggleButton btnEnabled = (ToggleButton) view.findViewById(R.id.alert_item_toggle);
         btnEnabled.setChecked(alert.isEnabled);
         btnEnabled.setTag(alert.id);

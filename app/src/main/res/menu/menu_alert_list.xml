@@ -6,7 +6,7 @@
         android:id="@+id/action_add_new_alert"
         android:title="@string/add_alert"
         app:showAsAction="always"
-        android:icon="@android:drawable/ic_menu_add"/>
+        android:icon="@android:drawable/ic_input_add"/>
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"

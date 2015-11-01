@@ -9,4 +9,5 @@
     <string name="alert_name">Alert Name</string>
     <string name="account_name">Account</string>
     <string name="label_name">Label</string>
+    <string name="email">e-mail</string>
 </resources>

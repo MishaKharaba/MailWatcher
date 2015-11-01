@@ -3,17 +3,27 @@ package com.eleks.mailwatcher;
 import android.Manifest;
 import android.accounts.AccountManager;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.eleks.mailwatcher.model.LabelRec;
+import com.eleks.mailwatcher.service.GmailReader;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.util.ExponentialBackOff;
 import com.google.api.services.gmail.GmailScopes;
+import com.google.api.services.gmail.model.Label;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class GmailAccountSelector
 {
@@ -30,7 +40,7 @@ public class GmailAccountSelector
 
     private final Activity mOwnedActivity;
     private String mAccountName;
-    GoogleAccountCredential mCredential;
+    private GoogleAccountCredential mCredential;
 
     public GmailAccountSelector(Activity ownedActivity)
     {
@@ -47,12 +57,27 @@ public class GmailAccountSelector
         this.mAccountName = accountName;
         if (mCredential == null)
         {
-            mCredential = GoogleAccountCredential.usingOAuth2(mOwnedActivity, Arrays.asList(SCOPES))
+            mCredential = GoogleAccountCredential.usingOAuth2(mOwnedActivity.getApplicationContext(),
+                    Arrays.asList(SCOPES))
                     .setBackOff(new ExponentialBackOff());
         }
         mCredential.setSelectedAccountName(accountName);
         chooseAccount();
         checkPermission(Manifest.permission.GET_ACCOUNTS);
+    }
+
+    public void setAccount(String accountName)
+    {
+        this.mAccountName = accountName;
+        if (mCredential == null)
+        {
+            mCredential = GoogleAccountCredential.usingOAuth2(mOwnedActivity.getApplicationContext(),
+                    Arrays.asList(SCOPES))
+                    .setBackOff(new ExponentialBackOff());
+        }
+        mCredential.setSelectedAccountName(accountName);
+        if (accountName != null)
+            new GetLabelsTask().execute();
     }
 
     private void chooseAccount()
@@ -102,6 +127,7 @@ public class GmailAccountSelector
                     {
                         mCredential.setSelectedAccountName(accountName);
                         mAccountName = accountName;
+                        new GetLabelsTask().execute();
                         Toast toast = Toast.makeText(mOwnedActivity, "Account selected", Toast.LENGTH_LONG);
                         toast.show();
                     }
@@ -129,4 +155,63 @@ public class GmailAccountSelector
         return true;
     }
 
+    public static void setLabels(Context context, Spinner spinner, List<LabelRec> labelRecs)
+    {
+        ArrayAdapter<LabelRec> adapter = new ArrayAdapter<LabelRec>(context,
+                android.R.layout.simple_spinner_item, labelRecs);
+        LabelRec item = (LabelRec) spinner.getSelectedItem();
+        spinner.setAdapter(adapter);
+        if (item != null)
+        {
+            int idx = labelRecs.indexOf(item);
+            if (idx >= 0)
+            {
+                spinner.setSelection(idx);
+            }
+
+        }
+    }
+
+    private class GetLabelsTask extends AsyncTask<Void, Void, List<LabelRec>>
+    {
+        @Override
+        protected List<LabelRec> doInBackground(Void... params)
+        {
+            GmailReader reader = new GmailReader(mCredential);
+            List<Label> labels = reader.GetLabelList();
+            if (reader.getLastError() instanceof UserRecoverableAuthIOException)
+            {
+                Intent intent = ((UserRecoverableAuthIOException) reader.getLastError()).getIntent();
+                mOwnedActivity.startActivityForResult(intent, REQUEST_AUTHORIZATION);
+            }
+            ArrayList<LabelRec> labelRecs = null;
+            if (labels != null)
+            {
+                labelRecs = new ArrayList<>();
+                for (Label label : labels)
+                {
+                    if (!"system".equalsIgnoreCase(label.getType()) ||
+                            "INBOX".equalsIgnoreCase(label.getId()))
+                    {
+                        labelRecs.add(new LabelRec(label.getId(), label.getName()));
+                    }
+                }
+            }
+            return labelRecs;
+        }
+
+        @Override
+        protected void onPostExecute(List<LabelRec> labelRecs)
+        {
+            if (labelRecs != null)
+            {
+                Spinner spinner = (Spinner) mOwnedActivity.findViewById(R.id.alert_label_name);
+                setLabels(mOwnedActivity, spinner, labelRecs);
+
+                Toast toast = Toast.makeText(mOwnedActivity, "Labels loaded", Toast.LENGTH_SHORT);
+                toast.show();
+            }
+        }
+
+    }
 }

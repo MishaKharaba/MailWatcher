@@ -16,6 +16,8 @@ public class AlertModel
     public String labelId;
     public String labelName;
 
+    public String historyId;
+
     public AlertModel(long id)
     {
         this.id = id;

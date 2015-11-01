@@ -4,7 +4,9 @@ import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Parcelable;
+import android.os.ResultReceiver;
 import android.provider.Settings;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -12,12 +14,18 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
 import com.eleks.mailwatcher.model.AlertDBHelper;
 import com.eleks.mailwatcher.model.AlertModel;
+import com.eleks.mailwatcher.model.LabelRec;
+
+import java.util.ArrayList;
 
 public class AlertDetailsActivity extends AppCompatActivity
 {
@@ -65,6 +73,21 @@ public class AlertDetailsActivity extends AppCompatActivity
             }
         });
 
+        Spinner spinner = (Spinner) findViewById(R.id.alert_label_name);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
+        {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
+            {
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent)
+            {
+
+            }
+        });
         long id = getIntent().getExtras().getLong("id");
 
         if (id < 0)
@@ -77,7 +100,9 @@ public class AlertDetailsActivity extends AppCompatActivity
             alert = dbHelper.getAlert(id);
         }
         alertToView(alert);
+        gmailAccountSelector.setAccount(alert.userAccount);
     }
+
 
     private void alertToView(AlertModel alert)
     {
@@ -89,8 +114,14 @@ public class AlertDetailsActivity extends AppCompatActivity
         txtToneSelection.setText(RingtoneManager.getRingtone(this, alert.alarmTone).getTitle(this));
         EditText edtAccount = (EditText) findViewById(R.id.alert_account_name);
         edtAccount.setText(alert.userAccount);
-        EditText edtLabelName = (EditText) findViewById(R.id.alert_label_name);
-        edtLabelName.setText(alert.labelName);
+        Spinner spinner = (Spinner) findViewById(R.id.alert_label_name);
+        ArrayList<LabelRec> labelRecs = new ArrayList<>();
+        if (alert.labelId != null)
+        {
+            labelRecs.add(new LabelRec(alert.labelId, alert.labelName));
+            GmailAccountSelector.setLabels(this, spinner, labelRecs);
+            spinner.setSelection(0);
+        }
     }
 
     private void viewToAlert(AlertModel alert)
@@ -101,8 +132,10 @@ public class AlertDetailsActivity extends AppCompatActivity
         alert.alarmTone = (Uri) toneSelector.getTag();
         EditText edtAccount = (EditText) findViewById(R.id.alert_account_name);
         alert.userAccount = edtAccount.getText().toString();
-        EditText edtLabelName = (EditText) findViewById(R.id.alert_label_name);
-        alert.labelName = edtLabelName.getText().toString();
+        Spinner spinner = (Spinner) findViewById(R.id.alert_label_name);
+        LabelRec item = (LabelRec) spinner.getSelectedItem();
+        alert.labelId = item != null ? item.id : null;
+        alert.labelName = item != null ? item.name : null;
     }
 
     @Override
@@ -125,7 +158,6 @@ public class AlertDetailsActivity extends AppCompatActivity
 
         if (gmailAccountSelector.onActivityResult(requestCode, resultCode, data))
         {
-
             if (resultCode == RESULT_OK)
             {
                 EditText account = (EditText) findViewById(R.id.alert_account_name);
@@ -162,8 +194,9 @@ public class AlertDetailsActivity extends AppCompatActivity
         {
             case android.R.id.home:
             {
+                setResult(RESULT_CANCELED);
                 finish();
-                break;
+                return true;
             }
             case R.id.action_save_alert_details:
             {
@@ -178,10 +211,12 @@ public class AlertDetailsActivity extends AppCompatActivity
                 }
                 setResult(RESULT_OK);
                 finish();
-                break;
+                return true;
             }
         }
 
         return super.onOptionsItemSelected(item);
     }
+
+
 }

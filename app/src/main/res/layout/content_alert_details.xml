@@ -55,7 +55,8 @@
         android:layout_marginTop="@dimen/activity_vertical_margin"
         android:layout_toLeftOf="@+id/account_selector"
         android:layout_toStartOf="@+id/account_selector"
-        android:hint="@string/account_name"/>
+        android:hint="@string/account_name"
+        android:editable="false"/>
 
     <Button
         android:id="@+id/account_selector"
@@ -67,7 +68,7 @@
         android:text="Select\nAccount"
         />
 
-    <EditText
+    <Spinner
         android:id="@+id/alert_label_name"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"

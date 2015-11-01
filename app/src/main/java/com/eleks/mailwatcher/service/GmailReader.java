@@ -1,11 +1,13 @@
 package com.eleks.mailwatcher.service;
 
+import android.content.Intent;
 import android.content.res.Resources;
 import android.util.Log;
 
 import com.eleks.mailwatcher.R;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
@@ -17,6 +19,7 @@ import com.google.api.services.gmail.model.Message;
 import com.google.api.services.gmail.model.ListLabelsResponse;
 import com.google.api.services.gmail.model.ListMessagesResponse;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +57,7 @@ public class GmailReader
         }
     }
 
-    public List<Message> GetMessages(int maxCount)
+    public List<Message> getMessages(int maxCount)
     {
         try
         {
@@ -83,7 +86,7 @@ public class GmailReader
             }
             for (Message message : messages)
             {
-                Log.i("gmail-service", message.toPrettyString());
+                Log.i("gmail-service-messages", message.toPrettyString());
             }
             return messages;
         }
@@ -94,14 +97,31 @@ public class GmailReader
         }
     }
 
-    public List<History> GetHistory(BigInteger startHistoryId, int maxCount)
+    public class HistoryRec
+    {
+        List<History> list;
+        BigInteger historyId;
+
+        public HistoryRec(List<History> list, BigInteger historyId)
+        {
+            this.list = list;
+            this.historyId = historyId;
+        }
+    }
+
+    public HistoryRec getHistory(BigInteger startHistoryId, String labelId, int maxCount)
     {
         try
         {
             mLastError = null;
             long maxResult = (maxCount > 100) ? 100 : maxCount;
             List<History> histories = new ArrayList<>();
-            ListHistoryResponse response = mService.users().history().list("me")
+            Gmail.Users.History.List historyList = mService.users().history().list("me");
+            if (labelId != null)
+            {
+                historyList = historyList.setLabelId(labelId);
+            }
+            ListHistoryResponse response = historyList
                     .setMaxResults(maxResult).setStartHistoryId(startHistoryId).execute();
             while (response.getHistory() != null)
             {
@@ -111,7 +131,7 @@ public class GmailReader
                 if (response.getNextPageToken() != null)
                 {
                     String pageToken = response.getNextPageToken();
-                    response = mService.users().history().list("me").setPageToken(pageToken)
+                    response = historyList.setPageToken(pageToken)
                             .setMaxResults(maxResult).setStartHistoryId(startHistoryId).execute();
                 }
                 else
@@ -122,9 +142,9 @@ public class GmailReader
 
             for (History history : histories)
             {
-                Log.i("gmail-service", history.toPrettyString());
+                Log.i("gmail-service-history", history.toPrettyString());
             }
-            return histories;
+            return new HistoryRec(histories, response.getHistoryId());
         }
         catch (Exception e)
         {
@@ -136,5 +156,20 @@ public class GmailReader
     public Exception getLastError()
     {
         return mLastError;
+    }
+
+    public Message getMessage(String id)
+    {
+        mLastError = null;
+        try
+        {
+            Message msg = mService.users().messages().get("me", id).execute();
+            return msg;
+        }
+        catch (Exception e)
+        {
+            mLastError = e;
+            return null;
+        }
     }
 }

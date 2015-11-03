@@ -115,8 +115,7 @@ public class GmailAccountSelector
                 {
                     //mMsg.setText("isGooglePlayServicesAvailable()");
                     //isGooglePlayServicesAvailable();
-                    Toast toast = Toast.makeText(mOwnedActivity, "No Google Play Service", Toast.LENGTH_LONG);
-                    toast.show();
+                    showShortToast("No Google Play Service");
                 }
                 break;
             case REQUEST_ACCOUNT_PICKER:
@@ -128,19 +127,16 @@ public class GmailAccountSelector
                         mCredential.setSelectedAccountName(accountName);
                         mAccountName = accountName;
                         new GetLabelsTask().execute();
-                        Toast toast = Toast.makeText(mOwnedActivity, "Account selected", Toast.LENGTH_LONG);
-                        toast.show();
+                        showShortToast("Account selected");
                     }
                     else
                     {
-                        Toast toast = Toast.makeText(mOwnedActivity, "No account selected", Toast.LENGTH_LONG);
-                        toast.show();
+                        showShortToast("No account selected");
                     }
                 }
                 else if (resultCode == RESULT_CANCELED)
                 {
-                    Toast toast = Toast.makeText(mOwnedActivity, "Selection cancelled", Toast.LENGTH_LONG);
-                    toast.show();
+                    showShortToast("Selection cancelled");
                 }
                 break;
             case REQUEST_AUTHORIZATION:
@@ -153,6 +149,12 @@ public class GmailAccountSelector
                 return false;
         }
         return true;
+    }
+
+    private void showShortToast(String text)
+    {
+        Toast toast = Toast.makeText(mOwnedActivity, text, Toast.LENGTH_SHORT);
+        toast.show();
     }
 
     public static void setLabels(Context context, Spinner spinner, List<LabelRec> labelRecs)
@@ -178,7 +180,7 @@ public class GmailAccountSelector
         protected List<LabelRec> doInBackground(Void... params)
         {
             GmailReader reader = new GmailReader(mCredential);
-            List<Label> labels = reader.GetLabelList();
+            List<Label> labels = reader.getLabelList();
             if (reader.getLastError() instanceof UserRecoverableAuthIOException)
             {
                 Intent intent = ((UserRecoverableAuthIOException) reader.getLastError()).getIntent();
@@ -208,8 +210,7 @@ public class GmailAccountSelector
                 Spinner spinner = (Spinner) mOwnedActivity.findViewById(R.id.alert_label_name);
                 setLabels(mOwnedActivity, spinner, labelRecs);
 
-                Toast toast = Toast.makeText(mOwnedActivity, "Labels loaded", Toast.LENGTH_SHORT);
-                toast.show();
+                showShortToast("Labels loaded");
             }
         }
 

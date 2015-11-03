@@ -1,13 +1,11 @@
 package com.eleks.mailwatcher.service;
 
-import android.content.Intent;
 import android.content.res.Resources;
 import android.util.Log;
 
 import com.eleks.mailwatcher.R;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
-import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
@@ -19,13 +17,13 @@ import com.google.api.services.gmail.model.Message;
 import com.google.api.services.gmail.model.ListLabelsResponse;
 import com.google.api.services.gmail.model.ListMessagesResponse;
 
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
 public class GmailReader
 {
+    public static final String TAG = "gmail-service";
     private Gmail mService;
     private Exception mLastError;
 
@@ -40,28 +38,32 @@ public class GmailReader
                 .build();
     }
 
-    public List<Label> GetLabelList()
+    public Exception getLastError()
     {
+        return mLastError;
+    }
+
+    public List<Label> getLabelList()
+    {
+        mLastError = null;
         try
         {
-            mLastError = null;
-            String user = "me";
-            ListLabelsResponse listResponse = mService.users().labels().list(user).execute();
-            List<Label> labels = listResponse.getLabels();
-            return labels;
+            ListLabelsResponse listResponse = mService.users().labels().list("me").execute();
+            return listResponse.getLabels();
         }
         catch (Exception e)
         {
             mLastError = e;
+            Log.e(TAG, "getLabelList", e);
             return null;
         }
     }
 
     public List<Message> getMessages(int maxCount)
     {
+        mLastError = null;
         try
         {
-            mLastError = null;
             long maxResult = (maxCount > 100) ? 100 : maxCount;
             ListMessagesResponse response = mService.users().messages().list("me")
                     .setMaxResults(maxResult)
@@ -93,6 +95,22 @@ public class GmailReader
         catch (Exception e)
         {
             mLastError = e;
+            Log.e(TAG, "getMessages", e);
+            return null;
+        }
+    }
+
+    public Message getMessage(String id)
+    {
+        mLastError = null;
+        try
+        {
+            return mService.users().messages().get("me", id).execute();
+        }
+        catch (Exception e)
+        {
+            mLastError = e;
+            Log.e(TAG, "getMessage", e);
             return null;
         }
     }
@@ -111,9 +129,9 @@ public class GmailReader
 
     public HistoryRec getHistory(BigInteger startHistoryId, String labelId, int maxCount)
     {
+        mLastError = null;
         try
         {
-            mLastError = null;
             long maxResult = (maxCount > 100) ? 100 : maxCount;
             List<History> histories = new ArrayList<>();
             Gmail.Users.History.List historyList = mService.users().history().list("me");
@@ -149,26 +167,7 @@ public class GmailReader
         catch (Exception e)
         {
             mLastError = e;
-            return null;
-        }
-    }
-
-    public Exception getLastError()
-    {
-        return mLastError;
-    }
-
-    public Message getMessage(String id)
-    {
-        mLastError = null;
-        try
-        {
-            Message msg = mService.users().messages().get("me", id).execute();
-            return msg;
-        }
-        catch (Exception e)
-        {
-            mLastError = e;
+            Log.e(TAG, "getHistory", e);
             return null;
         }
     }

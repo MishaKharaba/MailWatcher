@@ -10,4 +10,6 @@
     <string name="account_name">Account</string>
     <string name="label_name">Label</string>
     <string name="email">e-mail</string>
+    <string name="mail_alert">Mail Alert</string>
+    <string name="dismiss">Dismiss</string>
 </resources>

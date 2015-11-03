@@ -93,7 +93,7 @@ public class AlertDetailsActivity extends AppCompatActivity
         if (id < 0)
         {
             alert = new AlertModel(id);
-            alert.alarmTone = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+            alert.alarmTone = Settings.System.DEFAULT_ALARM_ALERT_URI;
         }
         else
         {

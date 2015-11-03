@@ -41,7 +41,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.eleks.mailwatcher.AlertListActivity"/>
         </activity>
-        <activity android:name=".AlarmClockScreenActivity">
+        <activity android:name=".PlayAlarmScreenActivity">
         </activity>
 
         <receiver android:name=".service.WakeupReceiver"/>

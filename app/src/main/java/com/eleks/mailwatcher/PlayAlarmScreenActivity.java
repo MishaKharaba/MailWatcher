@@ -14,10 +14,9 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 
-import com.eleks.mailwatcher.R;
 import com.eleks.mailwatcher.model.AlertDBHelper;
 
-public class AlarmClockScreenActivity extends AppCompatActivity
+public class PlayAlarmScreenActivity extends AppCompatActivity
 {
     public final String TAG = this.getClass().getSimpleName();
 
@@ -30,16 +29,18 @@ public class AlarmClockScreenActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_alarm_clock_screen);
+        setContentView(R.layout.activity_play_alarm_screen);
 
         String name = getIntent().getStringExtra(AlertDBHelper.Alert.COLUMN_NAME);
-        int timeHour = 11;//getIntent().getIntExtra(AlarmManagerHelper.TIME_HOUR, 0);
-        int timeMinute = 12;//getIntent().getIntExtra(AlarmManagerHelper.TIME_MINUTE, 0);
+        String mail = getIntent().getStringExtra(AlertDBHelper.Alert.COLUMN_USER_ACCOUNT);
+        String label = getIntent().getStringExtra(AlertDBHelper.Alert.COLUMN_LABEL_NAME);
         String tone = getIntent().getStringExtra(AlertDBHelper.Alert.COLUMN_ALARM_TONE);
-        TextView tvName = (TextView) findViewById(R.id.alarm_screen_name);
-        TextView tvTime = (TextView) findViewById(R.id.alarm_screen_time);
-        tvTime.setText(String.format("%02d : %02d", timeHour, timeMinute));
+        TextView tvName = (TextView) findViewById(R.id.alarm_name);
         tvName.setText(name);
+        TextView tvMail = (TextView) findViewById(R.id.alarm_mail);
+        tvMail.setText(mail);
+        TextView tvLabel = (TextView) findViewById(R.id.alarm_label);
+        tvLabel.setText(label);
 
         //Play alarm tone
         mPlayer = new MediaPlayer();
@@ -121,6 +122,9 @@ public class AlarmClockScreenActivity extends AppCompatActivity
     public void onDismissClick(View view)
     {
         mPlayer.stop();
+        mPlayer.release();
         finish();
     }
+
+
 }

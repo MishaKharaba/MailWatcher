@@ -8,12 +8,11 @@ import android.content.pm.PackageManager;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
-import com.eleks.mailwatcher.AlarmClockScreenActivity;
+import com.eleks.mailwatcher.PlayAlarmScreenActivity;
 import com.eleks.mailwatcher.model.AlertDBHelper;
 import com.eleks.mailwatcher.model.AlertModel;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.util.ExponentialBackOff;
-import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.GmailScopes;
 import com.google.api.services.gmail.model.History;
 import com.google.api.services.gmail.model.HistoryLabelAdded;
@@ -142,9 +141,11 @@ public class AlertService extends IntentService
 
     private void startAlert(AlertModel alert)
     {
-        Intent intent = new Intent(this, AlarmClockScreenActivity.class);
+        Intent intent = new Intent(this, PlayAlarmScreenActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra(AlertDBHelper.Alert.COLUMN_NAME, alert.name);
+        intent.putExtra(AlertDBHelper.Alert.COLUMN_USER_ACCOUNT, alert.userAccount);
+        intent.putExtra(AlertDBHelper.Alert.COLUMN_LABEL_NAME, alert.labelName);
         intent.putExtra(AlertDBHelper.Alert.COLUMN_ALARM_TONE, alert.alarmTone.toString());
         startActivity(intent);
     }

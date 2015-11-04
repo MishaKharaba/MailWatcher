@@ -17,6 +17,7 @@ import com.google.api.services.gmail.model.Message;
 import com.google.api.services.gmail.model.ListLabelsResponse;
 import com.google.api.services.gmail.model.ListMessagesResponse;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +44,19 @@ public class GmailReader
         return mLastError;
     }
 
-    public List<Label> getLabelList()
+    public List<Label> getLabelListSafe()
+    {
+        try
+        {
+            return getLabelList();
+        }
+        catch (Exception e)
+        {
+            return null;
+        }
+    }
+
+    public List<Label> getLabelList() throws IOException
     {
         mLastError = null;
         try
@@ -55,11 +68,11 @@ public class GmailReader
         {
             mLastError = e;
             Log.e(TAG, "getLabelList", e);
-            return null;
+            throw e;
         }
     }
 
-    public List<Message> getMessages(int maxCount)
+    public List<Message> getMessages(int maxCount) throws IOException
     {
         mLastError = null;
         try
@@ -86,21 +99,21 @@ public class GmailReader
                     break;
                 }
             }
-            for (Message message : messages)
-            {
-                Log.i("gmail-service-messages", message.toPrettyString());
-            }
+//            for (Message message : messages)
+//            {
+//                Log.i("gmail-service-messages", message.toPrettyString());
+//            }
             return messages;
         }
         catch (Exception e)
         {
             mLastError = e;
             Log.e(TAG, "getMessages", e);
-            return null;
+            throw e;
         }
     }
 
-    public Message getMessage(String id)
+    public Message getMessage(String id) throws IOException
     {
         mLastError = null;
         try
@@ -111,7 +124,15 @@ public class GmailReader
         {
             mLastError = e;
             Log.e(TAG, "getMessage", e);
-            return null;
+            throw e;
+        }
+    }
+
+    public void checkLastError() throws Exception
+    {
+        if (mLastError != null)
+        {
+            throw mLastError;
         }
     }
 
@@ -127,7 +148,7 @@ public class GmailReader
         }
     }
 
-    public HistoryRec getHistory(BigInteger startHistoryId, String labelId, int maxCount)
+    public HistoryRec getHistory(BigInteger startHistoryId, String labelId, int maxCount) throws IOException
     {
         mLastError = null;
         try
@@ -158,17 +179,17 @@ public class GmailReader
                 }
             }
 
-            for (History history : histories)
-            {
-                Log.i("gmail-service-history", history.toPrettyString());
-            }
+//            for (History history : histories)
+//            {
+//                Log.i("gmail-service-history", history.toPrettyString());
+//            }
             return new HistoryRec(histories, response.getHistoryId());
         }
         catch (Exception e)
         {
             mLastError = e;
             Log.e(TAG, "getHistory", e);
-            return null;
+            throw e;
         }
     }
 }

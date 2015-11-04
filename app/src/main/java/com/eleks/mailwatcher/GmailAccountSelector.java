@@ -180,7 +180,7 @@ public class GmailAccountSelector
         protected List<LabelRec> doInBackground(Void... params)
         {
             GmailReader reader = new GmailReader(mCredential);
-            List<Label> labels = reader.getLabelList();
+            List<Label> labels = reader.getLabelListSafe();
             if (reader.getLastError() instanceof UserRecoverableAuthIOException)
             {
                 Intent intent = ((UserRecoverableAuthIOException) reader.getLastError()).getIntent();

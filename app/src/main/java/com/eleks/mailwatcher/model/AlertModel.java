@@ -3,6 +3,8 @@ package com.eleks.mailwatcher.model;
 import android.net.Uri;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class AlertModel
@@ -17,6 +19,9 @@ public class AlertModel
     public String labelName;
 
     public String historyId;
+    public Date lastCheckDate;
+    public Date lastAlarmDate;
+    public String lastError;
 
     public AlertModel(long id)
     {

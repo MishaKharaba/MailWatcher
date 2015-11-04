@@ -39,9 +39,12 @@
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.eleks.mailwatcher.AlertListActivity"/>
+                android:value=".AlertListActivity"/>
         </activity>
         <activity android:name=".PlayAlarmScreenActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".AlertListActivity"/>
         </activity>
 
         <receiver android:name=".service.WakeupReceiver"/>

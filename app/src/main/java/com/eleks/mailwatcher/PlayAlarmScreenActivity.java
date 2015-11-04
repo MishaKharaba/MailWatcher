@@ -4,11 +4,11 @@ import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -128,20 +128,11 @@ public class PlayAlarmScreenActivity extends AppCompatActivity
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item)
+    public void onBackPressed()
     {
-        switch (item.getItemId())
-        {
-            case android.R.id.home:
-            {
-                mPlayer.stop();
-                mPlayer.release();
-                setResult(RESULT_CANCELED);
-                finish();
-                return true;
-            }
-        }
-        return super.onOptionsItemSelected(item);
+        mPlayer.stop();
+        mPlayer.release();
+        super.onBackPressed();
     }
 
 }

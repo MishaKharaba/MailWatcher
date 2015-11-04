@@ -9,11 +9,12 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class AlertDBHelper extends SQLiteOpenHelper
 {
-    public static final int DATABASE_VERSION = 4;
+    public static final int DATABASE_VERSION = 5;
     public static final String DATABASE_NAME = "mailwatcher.db";
 
     public static abstract class Alert implements BaseColumns
@@ -27,6 +28,9 @@ public class AlertDBHelper extends SQLiteOpenHelper
         public static final String COLUMN_LABEL_ID = "labelId";
         public static final String COLUMN_LABEL_NAME = "labelName";
         public static final String COLUMN_HISTORY_ID = "historyId";
+        public static final String COLUMN_LAST_CHECK_TS = "lastCheckTS";
+        public static final String COLUMN_LAST_ALARM_TS = "lastAlarmTS";
+        public static final String COLUMN_LAST_ERROR = "lastError";
     }
 
     private static final String SQL_CREATE_ALERT = "CREATE TABLE " + Alert.TABLE_NAME + " (" +
@@ -37,7 +41,10 @@ public class AlertDBHelper extends SQLiteOpenHelper
             Alert.COLUMN_USER_ACCOUNT + " TEXT," +
             Alert.COLUMN_LABEL_ID + " TEXT," +
             Alert.COLUMN_LABEL_NAME + " TEXT," +
-            Alert.COLUMN_HISTORY_ID + " TEXT" +
+            Alert.COLUMN_HISTORY_ID + " TEXT," +
+            Alert.COLUMN_LAST_CHECK_TS + " INTEGER," +
+            Alert.COLUMN_LAST_ALARM_TS + " INTEGER," +
+            Alert.COLUMN_LAST_ERROR + " TEXT" +
             " )";
 
     private static final String SQL_DELETE_ALERT = "DROP TABLE IF EXISTS " + Alert.TABLE_NAME;
@@ -72,6 +79,12 @@ public class AlertDBHelper extends SQLiteOpenHelper
         model.labelId = c.getString(c.getColumnIndex(Alert.COLUMN_LABEL_ID));
         model.labelName = c.getString(c.getColumnIndex(Alert.COLUMN_LABEL_NAME));
         model.historyId = c.getString(c.getColumnIndex(Alert.COLUMN_HISTORY_ID));
+        model.historyId = c.getString(c.getColumnIndex(Alert.COLUMN_HISTORY_ID));
+        long aLong = c.getLong(c.getColumnIndex(Alert.COLUMN_LAST_CHECK_TS));
+        model.lastCheckDate = aLong > 0 ? new Date(aLong) : null;
+        aLong = c.getLong(c.getColumnIndex(Alert.COLUMN_LAST_ALARM_TS));
+        model.lastAlarmDate = aLong > 0 ? new Date(aLong) : null;
+        model.lastError = c.getString(c.getColumnIndex(Alert.COLUMN_LAST_ERROR));
         return model;
     }
 
@@ -85,6 +98,11 @@ public class AlertDBHelper extends SQLiteOpenHelper
         values.put(Alert.COLUMN_LABEL_ID, model.labelId);
         values.put(Alert.COLUMN_LABEL_NAME, model.labelName);
         values.put(Alert.COLUMN_HISTORY_ID, model.historyId);
+        values.put(Alert.COLUMN_LAST_CHECK_TS,
+                model.lastCheckDate != null ? model.lastCheckDate.getTime() : 0);
+        values.put(Alert.COLUMN_LAST_ALARM_TS,
+                model.lastAlarmDate != null ? model.lastAlarmDate.getTime() : 0);
+        values.put(Alert.COLUMN_LAST_ERROR, model.lastError);
         return values;
     }
 

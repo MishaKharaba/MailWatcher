@@ -19,8 +19,11 @@ import com.google.api.services.gmail.model.HistoryLabelAdded;
 import com.google.api.services.gmail.model.HistoryMessageAdded;
 import com.google.api.services.gmail.model.Message;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class AlertService extends IntentService
@@ -71,11 +74,24 @@ public class AlertService extends IntentService
         for (AlertModel alert : alerts)
         {
             if (alert.isEnabled)
-                checkAlert(alert);
+            {
+                alert.lastCheckDate = Calendar.getInstance().getTime();
+                alert.lastError = null;
+                try
+                {
+                    checkAlert(alert);
+                }
+                catch (Exception e)
+                {
+                    alert.lastError = e.getMessage();
+                    Log.e(TAG, "checkAlert() " + alert.name, e);
+                }
+                dbHelper.updateAlert(alert);
+            }
         }
     }
 
-    private void checkAlert(AlertModel alert)
+    private void checkAlert(AlertModel alert) throws Exception
     {
         String[] SCOPES = {
                 GmailScopes.MAIL_GOOGLE_COM,
@@ -95,7 +111,7 @@ public class AlertService extends IntentService
 
         GmailReader reader = new GmailReader(credential);
         BigInteger historyId;
-        if (alert.historyId == null)
+        if (alert.historyId == null || alert.historyId.isEmpty())
         {
             historyId = getHistoryId(reader);
             if (historyId == null)
@@ -125,10 +141,10 @@ public class AlertService extends IntentService
             }
         }
         alert.historyId = historyRec.historyId.toString();
-        dbHelper.updateAlert(alert);
+        Log.i(TAG, "Last history ID " + alert.historyId);
     }
 
-    private BigInteger getHistoryId(GmailReader reader)
+    private BigInteger getHistoryId(GmailReader reader) throws IOException
     {
         List<Message> messages = reader.getMessages(1);
         if (messages.size() > 0)
@@ -141,6 +157,8 @@ public class AlertService extends IntentService
 
     private void startAlert(AlertModel alert)
     {
+        Log.i(TAG, "Starting play alarm screen");
+        alert.lastAlarmDate = alert.lastCheckDate;
         Intent intent = new Intent(this, PlayAlarmScreenActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra(AlertDBHelper.Alert.COLUMN_NAME, alert.name);

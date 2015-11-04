@@ -10,6 +10,7 @@ import android.os.PowerManager.WakeLock;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
@@ -126,5 +127,21 @@ public class PlayAlarmScreenActivity extends AppCompatActivity
         finish();
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        switch (item.getItemId())
+        {
+            case android.R.id.home:
+            {
+                mPlayer.stop();
+                mPlayer.release();
+                setResult(RESULT_CANCELED);
+                finish();
+                return true;
+            }
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
 }

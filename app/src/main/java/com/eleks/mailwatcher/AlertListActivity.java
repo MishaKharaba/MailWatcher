@@ -88,6 +88,10 @@ public class AlertListActivity extends AppCompatActivity
     {
         AlertModel alert = dbHelper.getAlert(id);
         alert.isEnabled = isEnabled;
+        if (!isEnabled)
+        {
+            alert.historyId = null;
+        }
         dbHelper.updateAlert(alert);
 
         mAdapter.setAlerts(dbHelper.getAlerts());

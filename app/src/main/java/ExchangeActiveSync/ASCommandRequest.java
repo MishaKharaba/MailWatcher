@@ -1,14 +1,10 @@
-//
-// Translated by CS2J (http://www.cs2j.com): 06/11/2015 15:37:33
-//
-
 package ExchangeActiveSync;
 
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.Base64;
 
 import ExchangeActiveSync.ASCommandResponse;
 import ExchangeActiveSync.ASError;
@@ -22,7 +18,7 @@ public class ASCommandRequest {
 	private boolean useSSL = true;
 	private byte[] wbxmlBytes = null;
 	private String xmlString = null;
-	private String protocolVersion = null;
+	private String protocolVersion = "14.1";
 	private String requestLine = null;
 	private String command = null;
 	private String user = null;
@@ -37,6 +33,11 @@ public class ASCommandRequest {
 
 	public void setEncodedCredentials(String value) throws Exception {
 		encodedCredential = value;
+	}
+
+	public void setCredentials(String user, String pwd) throws Exception {
+		String credential = user + ":" + pwd;
+		encodedCredential = Base64.getEncoder().encodeToString(credential.getBytes("UTF-8"));
 	}
 
 	public String getServer() throws Exception {
@@ -97,7 +98,7 @@ public class ASCommandRequest {
 		return command;
 	}
 
-	public void setCommand(String value) throws Exception {
+	protected void setCommand(String value) throws Exception {
 		command = value;
 	}
 
@@ -145,15 +146,18 @@ public class ASCommandRequest {
 	// the response.
 	public ASCommandResponse getResponse() throws Exception {
 		generateXMLPayload();
-		if (getEncodedCredentials() == null || getServer() == null || getProtocolVersion() == null
-				|| getWbxmlBytes() == null)
-			throw new Exception("ASCommandRequest not initialized.");
+		if (getEncodedCredentials() == null)
+			throw new Exception("ASCommandRequest: Credentials not initialized.");
+		if (getServer() == null)
+			throw new Exception("ASCommandRequest: Server not initialized.");
+		if (getProtocolVersion() == null)
+			throw new Exception("ASCommandRequest: ProtocolVersion not initialized.");
+		if (getWbxmlBytes() == null)
+			throw new Exception("ASCommandRequest: WbxmlBytes not initialized.");
 
 		// Generate the URI for the request
-		String requestParams = getRequestLine();
-		requestParams = URLEncoder.encode(requestParams, "UTF-8");
 		String uriString = String.format("%s//%s/Microsoft-Server-ActiveSync?%s", useSSL ? "https:" : "http:", server,
-				requestParams);
+				getRequestLine());
 		URL url = new URL(uriString);
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		connection.setRequestProperty("Authorization", "Basic " + getEncodedCredentials());
@@ -168,20 +172,15 @@ public class ASCommandRequest {
 		connection.setRequestProperty("MS-ASProtocolVersion", protocolVersion);
 		connection.setRequestProperty("X-MS-PolicyKey", ((Long) getPolicyKey()).toString());
 
-		try {
-			OutputStream outputStream = connection.getOutputStream();
-			outputStream.write(getWbxmlBytes());
-			outputStream.close();
+		OutputStream outputStream = connection.getOutputStream();
+		outputStream.write(getWbxmlBytes());
+		outputStream.close();
 
-			connection.connect();
-			ASCommandResponse response = wrapHttpResponse(connection);
-			connection.disconnect();
+		connection.connect();
+		ASCommandResponse response = wrapHttpResponse(connection);
+		connection.disconnect();
 
-			return response;
-		} catch (Exception ex) {
-			ASError.reportException(ex);
-			return null;
-		}
+		return response;
 	}
 
 	// This function generates an ASCommandResponse from an
@@ -192,16 +191,23 @@ public class ASCommandRequest {
 
 	// This function builds a request line from the class properties.
 	protected void buildRequestLine() throws Exception {
-		if (getCommand() == null || getUser() == null || getDeviceID() == null || getDeviceType() == null)
-			throw new Exception("ASCommandRequest not initialized.");
+		if (getCommand() == null)
+			throw new Exception("ASCommandRequest: Command not initialized.");
+		if (getUser() == null)
+			throw new Exception("ASCommandRequest: User not initialized.");
+		if (getDeviceID() == null)
+			throw new Exception("ASCommandRequest: DeviceID not initialized.");
+		if (getDeviceType() == null)
+			throw new Exception("ASCommandRequest: DeviceType not initialized.");
 
 		// Generate a plain-text request line.
-		setRequestLine(String.format("Cmd=%s&User=%s&DeviceId=%s&DeviceType=%s", getCommand(), getUser(), getDeviceID(),
-				getDeviceType()));
+		setRequestLine(String.format("Cmd=%s&User=%s&DeviceId=%s&DeviceType=%s",
+				URLEncoder.encode(getCommand(), "UTF-8"), URLEncoder.encode(getUser(), "UTF-8"),
+				URLEncoder.encode(getDeviceID(), "UTF-8"), URLEncoder.encode(getDeviceType(), "UTF-8")));
 		if (getCommandParameters() != null) {
 			for (int i = 0; i < parameters.length; i++) {
 				setRequestLine(String.format("%s&%s=%s", getRequestLine(), getCommandParameters()[i].Parameter,
-						getCommandParameters()[i].Value));
+						URLEncoder.encode(getCommandParameters()[i].Value, "UTF-8")));
 			}
 		}
 	}

@@ -119,53 +119,53 @@ public class Device {
 		deviceInfoElement.appendChild(setElement);
 		if (getModel() != null) {
 			Element modelElement = xmlDoc.createElementNS(strSettingsNamespace, strSettingsXmlns + ":Model");
-			modelElement.setNodeValue(getModel());
+			modelElement.setTextContent(getModel());
 			setElement.appendChild(modelElement);
 		}
 
 		if (getIMEI() != null) {
 			Element IMEIElement = xmlDoc.createElementNS(strSettingsNamespace, strSettingsXmlns + ":IMEI");
-			IMEIElement.setNodeValue(getIMEI());
+			IMEIElement.setTextContent(getIMEI());
 			setElement.appendChild(IMEIElement);
 		}
 
 		if (getFriendlyName() != null) {
 			Element friendlyNameElement = xmlDoc.createElementNS(strSettingsNamespace,
 					strSettingsXmlns + ":FriendlyName");
-			friendlyNameElement.setNodeValue(getFriendlyName());
+			friendlyNameElement.setTextContent(getFriendlyName());
 			setElement.appendChild(friendlyNameElement);
 		}
 
 		if (getOperatingSystem() != null) {
 			Element operatingSystemElement = xmlDoc.createElementNS(strSettingsNamespace, strSettingsXmlns + ":OS");
-			operatingSystemElement.setNodeValue(getOperatingSystem());
+			operatingSystemElement.setTextContent(getOperatingSystem());
 			setElement.appendChild(operatingSystemElement);
 		}
 
 		if (getOperatingSystemLanguage() != null) {
 			Element operatingSystemLanguageElement = xmlDoc.createElementNS(strSettingsNamespace,
 					strSettingsXmlns + ":OSLanguage");
-			operatingSystemLanguageElement.setNodeValue(getOperatingSystemLanguage());
+			operatingSystemLanguageElement.setTextContent(getOperatingSystemLanguage());
 			setElement.appendChild(operatingSystemLanguageElement);
 		}
 
 		if (getPhoneNumber() != null) {
 			Element phoneNumberElement = xmlDoc.createElementNS(strSettingsNamespace,
 					strSettingsXmlns + ":PhoneNumber");
-			phoneNumberElement.setNodeValue(getPhoneNumber());
+			phoneNumberElement.setTextContent(getPhoneNumber());
 			setElement.appendChild(phoneNumberElement);
 		}
 
 		if (getMobileOperator() != null) {
 			Element mobileOperatorElement = xmlDoc.createElementNS(strSettingsNamespace,
 					strSettingsXmlns + ":MobileOperator");
-			mobileOperatorElement.setNodeValue(getMobileOperator());
+			mobileOperatorElement.setTextContent(getMobileOperator());
 			setElement.appendChild(mobileOperatorElement);
 		}
 
 		if (getUserAgent() != null) {
 			Element userAgentElement = xmlDoc.createElementNS(strSettingsNamespace, strSettingsXmlns + ":UserAgent");
-			userAgentElement.setNodeValue(getUserAgent());
+			userAgentElement.setTextContent(getUserAgent());
 			setElement.appendChild(userAgentElement);
 		}
 

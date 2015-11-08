@@ -1,10 +1,5 @@
-//
-// Translated by CS2J (http://www.cs2j.com): 06/11/2015 15:37:33
-//
-
 package ExchangeActiveSync;
 
-import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
 
@@ -18,7 +13,6 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import org.xml.sax.InputSource;
 
 import ExchangeActiveSync.ASCommandRequest;
 import ExchangeActiveSync.ASCommandResponse;
@@ -43,6 +37,10 @@ public class ASProvisionRequest extends ASCommandRequest {
 	private boolean isRemoteWipe = false;
 	private int status = 0;
 	private Device provisionDevice = null;
+
+	public ASProvisionRequest() throws Exception {
+		setCommand("Provision");
+	}
 
 	public boolean getIsAcknowledgement() throws Exception {
 		return isAcknowledgement;
@@ -74,10 +72,6 @@ public class ASProvisionRequest extends ASCommandRequest {
 
 	public void setStatus(int value) throws Exception {
 		status = value;
-	}
-
-	public ASProvisionRequest() throws Exception {
-		setCommand("Provision");
 	}
 
 	// This function generates an ASProvisionResponse from an
@@ -118,7 +112,7 @@ public class ASProvisionRequest extends ASCommandRequest {
 			// Always return success for remote wipe
 			Node statusNode = provisionXML.createElementNS(Namespaces.provisionNamespace,
 					Xmlns.provisionXmlns + ":Status");
-			statusNode.setNodeValue("1");
+			statusNode.setTextContent("1");
 			remoteWipeNode.appendChild(statusNode);
 		} else {
 			// The other two possibilities here are
@@ -128,8 +122,10 @@ public class ASProvisionRequest extends ASCommandRequest {
 			if (!isAcknowledgement) {
 				// A DeviceInformation node is only included in the initial
 				// request.
-				Node deviceNode = provisionXML.importNode(provisionDevice.getDeviceInformationNode(), true);
-				provisionNode.appendChild(deviceNode);
+				if (provisionDevice != null) {
+					Node deviceNode = provisionXML.importNode(provisionDevice.getDeviceInformationNode(), true);
+					provisionNode.appendChild(deviceNode);
+				}
 			}
 
 			// These nodes are included in both scenarios.
@@ -141,18 +137,18 @@ public class ASProvisionRequest extends ASCommandRequest {
 			policiesNode.appendChild(policyNode);
 			Node policyTypeNode = provisionXML.createElementNS(Namespaces.provisionNamespace,
 					Xmlns.provisionXmlns + ":PolicyType");
-			policyTypeNode.setNodeValue(policyType);
+			policyTypeNode.setTextContent(policyType);
 			policyNode.appendChild(policyTypeNode);
 			if (isAcknowledgement) {
 				// Need to also include policy key and status
 				// when acknowledging
 				Node policyKeyNode = provisionXML.createElementNS(Namespaces.provisionNamespace,
 						Xmlns.provisionXmlns + ":PolicyKey");
-				policyKeyNode.setNodeValue(((Long) getPolicyKey()).toString());
+				policyKeyNode.setTextContent(((Long) getPolicyKey()).toString());
 				policyNode.appendChild(policyKeyNode);
 				Node statusNode = provisionXML.createElementNS(Namespaces.provisionNamespace,
 						Xmlns.provisionXmlns + ":Status");
-				statusNode.setNodeValue(((Integer) status).toString());
+				statusNode.setTextContent(((Integer) status).toString());
 				policyNode.appendChild(statusNode);
 			}
 

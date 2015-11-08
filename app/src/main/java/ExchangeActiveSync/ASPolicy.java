@@ -1,12 +1,10 @@
 
 package ExchangeActiveSync;
 
-import java.awt.List;
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Iterator;
 
-import javax.xml.namespace.QName;
+import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
@@ -280,230 +278,242 @@ public class ASPolicy {
 		factory.setNamespaceAware(true);
 		DocumentBuilder builder = factory.newDocumentBuilder();
 		InputSource is = new InputSource(new StringReader(policyXml));
-		try {
-			Document xmlDoc = builder.parse(is);
-			// XmlNamespaceManager xmlNsMgr = new
-			// XmlNamespaceManager(xmlDoc.NameTable);
-			// xmlNsMgr.AddNamespace("provision", "Provision");
-			// If this is a remote wipe, there's no
-			// further parsing to do.
-			XPath xPath = XPathFactory.newInstance().newXPath();
-			Node remoteWipeNode = (Node) xPath.evaluate(".//provision:RemoteWipe", xmlDoc, XPathConstants.NODE);
-			if (remoteWipeNode != null) {
-				remoteWipeRequested = true;
-				return true;
+		Document xmlDoc = builder.parse(is);
+		XPath xPath = XPathFactory.newInstance().newXPath();
+		// NamespaceContext nsContext = xmlDoc.lookupNamespaceURI(prefix);
+		xPath.setNamespaceContext(new NamespaceContext() {
+			@Override
+			public Iterator<String> getPrefixes(String namespaceURI) {
+				throw new UnsupportedOperationException();
 			}
 
-			// Find the policy.
-			Node policyNode = (Node) xPath.evaluate(".//provision:Policy", xmlDoc, XPathConstants.NODE);
-			if (policyNode != null) {
-				Node policyTypeNode = (Node) xPath.evaluate("provision:PolicyType", policyNode, XPathConstants.NODE);
-				if (policyTypeNode != null && "MS-EAS-Provisioning-WBXML".equals(policyTypeNode.getNodeValue())) {
-					// Get the policy's status
-					Node policyStatusNode = (Node) xPath.evaluate("provision:Status", policyNode, XPathConstants.NODE);
-					if (policyStatusNode != null)
-						status = Integer.parseInt(policyStatusNode.getNodeValue());
+			@Override
+			public String getPrefix(String namespaceURI) {
+				throw new UnsupportedOperationException();
+			}
 
-					// Get the policy key
-					Node policyKeyNode = (Node) xPath.evaluate("provision:PolicyKey", policyNode, XPathConstants.NODE);
-					if (policyKeyNode != null)
-						policyKey = Long.parseLong(policyKeyNode.getNodeValue());
+			@Override
+			public String getNamespaceURI(String prefix) {
+				if ("provision".equals(prefix)) {
+					return "Provision";
+				} else {
+					return "";
+				}
+			}
+		});
 
-					// Get the contents of the policy
-					Node provisioningDocNode = (Node) xPath.evaluate(".//provision:EASProvisionDoc", policyNode,
-							XPathConstants.NODE);
-					if (provisioningDocNode != null) {
-						hasPolicyInfo = true;
-						NodeList childNodes = provisioningDocNode.getChildNodes();
-						for (int i = 0, n = childNodes.getLength(); i < n; i++) {
-							Node policySettingNode = childNodes.item(i);
-							// Loop through the child nodes and
-							// set the corresponding property.
-							String name = policySettingNode.getLocalName();
-							if (name.equals(("AllowBluetooth"))) {
-								if (!"".equals(policySettingNode.getNodeValue()))
-									allowBlueTooth = Byte.parseByte(policySettingNode.getNodeValue());
+		// If this is a remote wipe, there's no
+		// further parsing to do.
+		Node remoteWipeNode = (Node) xPath.evaluate(".//provision:RemoteWipe", xmlDoc, XPathConstants.NODE);
+		if (remoteWipeNode != null) {
+			remoteWipeRequested = true;
+			return true;
+		}
 
-							} else if (name.equals(("AllowBrowser"))) {
-								if (!"".equals(policySettingNode.getNodeValue()))
-									allowBrowser = Boolean.parseBoolean(policySettingNode.getNodeValue());
+		// Find the policy.
+		Node policyNode = (Node) xPath.evaluate(".//provision:Policy", xmlDoc, XPathConstants.NODE);
+		if (policyNode == null) {
+			return false;
+		}
 
-							} else if (name.equals(("AllowCamera"))) {
-								if (!"".equals(policySettingNode.getNodeValue()))
-									allowCamera = Boolean.parseBoolean(policySettingNode.getNodeValue());
+		Node policyTypeNode = (Node) xPath.evaluate("provision:PolicyType", policyNode, XPathConstants.NODE);
+		if (policyTypeNode != null && "MS-EAS-Provisioning-WBXML".equals(policyTypeNode.getTextContent())) {
+			// Get the policy's status
+			Node policyStatusNode = (Node) xPath.evaluate("provision:Status", policyNode, XPathConstants.NODE);
+			if (policyStatusNode != null)
+				status = Integer.parseInt(policyStatusNode.getTextContent());
 
-							} else if (name.equals(("AllowConsumerEmail"))) {
-								if (!"".equals(policySettingNode.getNodeValue()))
-									allowConsumerEmail = Boolean.parseBoolean(policySettingNode.getNodeValue());
+			// Get the policy key
+			Node policyKeyNode = (Node) xPath.evaluate("provision:PolicyKey", policyNode, XPathConstants.NODE);
+			if (policyKeyNode != null)
+				policyKey = Long.parseLong(policyKeyNode.getTextContent());
 
-							} else if (name.equals(("AllowDesktopSync"))) {
-								if (!"".equals(policySettingNode.getNodeValue()))
-									allowDesktopSync = Boolean.parseBoolean(policySettingNode.getNodeValue());
+			// Get the contents of the policy
+			Node provisioningDocNode = (Node) xPath.evaluate(".//provision:EASProvisionDoc", policyNode,
+					XPathConstants.NODE);
+			if (provisioningDocNode != null) {
+				hasPolicyInfo = true;
+				NodeList childNodes = provisioningDocNode.getChildNodes();
+				for (int i = 0, n = childNodes.getLength(); i < n; i++) {
+					Node policySettingNode = childNodes.item(i);
+					// Loop through the child nodes and
+					// set the corresponding property.
+					String name = policySettingNode.getLocalName();
+					if (name.equals(("AllowBluetooth"))) {
+						if (!"".equals(policySettingNode.getTextContent()))
+							allowBlueTooth = Byte.parseByte(policySettingNode.getTextContent());
 
-							} else if (name.equals(("AllowHTMLEmail"))) {
-								if (!"".equals(policySettingNode.getNodeValue()))
-									allowHTMLEmail = Boolean.parseBoolean(policySettingNode.getNodeValue());
+					} else if (name.equals(("AllowBrowser"))) {
+						if (!"".equals(policySettingNode.getTextContent()))
+							allowBrowser = Boolean.parseBoolean(policySettingNode.getTextContent());
 
-							} else if (name.equals(("AllowInternetSharing"))) {
-								if (!"".equals(policySettingNode.getNodeValue()))
-									allowInternetSharing = Boolean.parseBoolean(policySettingNode.getNodeValue());
+					} else if (name.equals(("AllowCamera"))) {
+						if (!"".equals(policySettingNode.getTextContent()))
+							allowCamera = Boolean.parseBoolean(policySettingNode.getTextContent());
 
-							} else if (name.equals(("AllowIrDA"))) {
-								if (!"".equals(policySettingNode.getNodeValue()))
-									allowIrDA = Boolean.parseBoolean(policySettingNode.getNodeValue());
+					} else if (name.equals(("AllowConsumerEmail"))) {
+						if (!"".equals(policySettingNode.getTextContent()))
+							allowConsumerEmail = Boolean.parseBoolean(policySettingNode.getTextContent());
 
-							} else if (name.equals(("AllowPOPIMAPEmail"))) {
-								if (!"".equals(policySettingNode.getNodeValue()))
-									allowPOPIMAPEmail = Boolean.parseBoolean(policySettingNode.getNodeValue());
+					} else if (name.equals(("AllowDesktopSync"))) {
+						if (!"".equals(policySettingNode.getTextContent()))
+							allowDesktopSync = Boolean.parseBoolean(policySettingNode.getTextContent());
 
-							} else if (name.equals(("AllowRemoteDesktop"))) {
-								if (!"".equals(policySettingNode.getNodeValue()))
-									allowRemoteDesktop = Boolean.parseBoolean(policySettingNode.getNodeValue());
+					} else if (name.equals(("AllowHTMLEmail"))) {
+						if (!"".equals(policySettingNode.getTextContent()))
+							allowHTMLEmail = Boolean.parseBoolean(policySettingNode.getTextContent());
 
-							} else if (name.equals(("AllowSimpleDevicePassword"))) {
-								if (!"".equals(policySettingNode.getNodeValue()))
-									allowSimpleDevicePassword = Boolean.parseBoolean(policySettingNode.getNodeValue());
+					} else if (name.equals(("AllowInternetSharing"))) {
+						if (!"".equals(policySettingNode.getTextContent()))
+							allowInternetSharing = Boolean.parseBoolean(policySettingNode.getTextContent());
 
-							} else if (name.equals(("AllowSMIMEEncryptionAlgorithmNegotiation"))) {
-								if (!"".equals(policySettingNode.getNodeValue()))
-									allowSMIMEEncryptionAlgorithmNegotiation = Integer
-											.parseInt(policySettingNode.getNodeValue());
+					} else if (name.equals(("AllowIrDA"))) {
+						if (!"".equals(policySettingNode.getTextContent()))
+							allowIrDA = Boolean.parseBoolean(policySettingNode.getTextContent());
 
-							} else if (name.equals(("AllowSMIMESoftCerts"))) {
-								if (!"".equals(policySettingNode.getNodeValue()))
-									allowSMIMESoftCerts = Boolean.parseBoolean(policySettingNode.getNodeValue());
+					} else if (name.equals(("AllowPOPIMAPEmail"))) {
+						if (!"".equals(policySettingNode.getTextContent()))
+							allowPOPIMAPEmail = Boolean.parseBoolean(policySettingNode.getTextContent());
 
-							} else if (name.equals(("AllowStorageCard"))) {
-								if (!"".equals(policySettingNode.getNodeValue()))
-									allowStorageCard = Boolean.parseBoolean(policySettingNode.getNodeValue());
+					} else if (name.equals(("AllowRemoteDesktop"))) {
+						if (!"".equals(policySettingNode.getTextContent()))
+							allowRemoteDesktop = Boolean.parseBoolean(policySettingNode.getTextContent());
 
-							} else if (name.equals(("AllowTextMessaging"))) {
-								if (!"".equals(policySettingNode.getNodeValue()))
-									allowTextMessaging = Boolean.parseBoolean(policySettingNode.getNodeValue());
+					} else if (name.equals(("AllowSimpleDevicePassword"))) {
+						if (!"".equals(policySettingNode.getTextContent()))
+							allowSimpleDevicePassword = Boolean.parseBoolean(policySettingNode.getTextContent());
 
-							} else if (name.equals(("AllowUnsignedApplications"))) {
-								if (!"".equals(policySettingNode.getNodeValue()))
-									allowUnsignedApplications = Boolean.parseBoolean(policySettingNode.getNodeValue());
+					} else if (name.equals(("AllowSMIMEEncryptionAlgorithmNegotiation"))) {
+						if (!"".equals(policySettingNode.getTextContent()))
+							allowSMIMEEncryptionAlgorithmNegotiation = Integer
+									.parseInt(policySettingNode.getTextContent());
 
-							} else if (name.equals(("AllowUnsignedInstallationPackages"))) {
-								if (!"".equals(policySettingNode.getNodeValue()))
-									allowUnsignedInstallationPackages = Boolean
-											.parseBoolean(policySettingNode.getNodeValue());
+					} else if (name.equals(("AllowSMIMESoftCerts"))) {
+						if (!"".equals(policySettingNode.getTextContent()))
+							allowSMIMESoftCerts = Boolean.parseBoolean(policySettingNode.getTextContent());
 
-							} else if (name.equals(("AllowWiFi"))) {
-								if (!"".equals(policySettingNode.getNodeValue()))
-									allowWifi = Boolean.parseBoolean(policySettingNode.getNodeValue());
+					} else if (name.equals(("AllowStorageCard"))) {
+						if (!"".equals(policySettingNode.getTextContent()))
+							allowStorageCard = Boolean.parseBoolean(policySettingNode.getTextContent());
 
-							} else if (name.equals(("AlphanumericDevicePasswordRequired"))) {
-								if (!"".equals(policySettingNode.getNodeValue()))
-									alphanumericDevicePasswordRequired = Boolean
-											.parseBoolean(policySettingNode.getNodeValue());
+					} else if (name.equals(("AllowTextMessaging"))) {
+						if (!"".equals(policySettingNode.getTextContent()))
+							allowTextMessaging = Boolean.parseBoolean(policySettingNode.getTextContent());
 
-							} else if (name.equals(("ApprovedApplicationList"))) {
-								if (!"".equals(policySettingNode.getNodeValue()))
-									approvedApplicationList = parseAppList(policySettingNode);
+					} else if (name.equals(("AllowUnsignedApplications"))) {
+						if (!"".equals(policySettingNode.getTextContent()))
+							allowUnsignedApplications = Boolean.parseBoolean(policySettingNode.getTextContent());
 
-							} else if (name.equals(("AttachmentsEnabled"))) {
-								if (!"".equals(policySettingNode.getNodeValue()))
-									attachmentsEnabled = Boolean.parseBoolean(policySettingNode.getNodeValue());
+					} else if (name.equals(("AllowUnsignedInstallationPackages"))) {
+						if (!"".equals(policySettingNode.getTextContent()))
+							allowUnsignedInstallationPackages = Boolean
+									.parseBoolean(policySettingNode.getTextContent());
 
-							} else if (name.equals(("DevicePasswordEnabled"))) {
-								if (!"".equals(policySettingNode.getNodeValue()))
-									devicePasswordEnabled = Boolean.parseBoolean(policySettingNode.getNodeValue());
+					} else if (name.equals(("AllowWiFi"))) {
+						if (!"".equals(policySettingNode.getTextContent()))
+							allowWifi = Boolean.parseBoolean(policySettingNode.getTextContent());
 
-							} else if (name.equals(("DevicePasswordExpiration"))) {
-								if (!"".equals(policySettingNode.getNodeValue()))
-									devicePasswordExpiration = Long.parseLong(policySettingNode.getNodeValue());
+					} else if (name.equals(("AlphanumericDevicePasswordRequired"))) {
+						if (!"".equals(policySettingNode.getTextContent()))
+							alphanumericDevicePasswordRequired = Boolean
+									.parseBoolean(policySettingNode.getTextContent());
 
-							} else if (name.equals(("DevicePasswordHistory"))) {
-								if (!"".equals(policySettingNode.getNodeValue()))
-									devicePasswordHistory = Long.parseLong(policySettingNode.getNodeValue());
+					} else if (name.equals(("ApprovedApplicationList"))) {
+						if (!"".equals(policySettingNode.getTextContent()))
+							approvedApplicationList = parseAppList(policySettingNode);
 
-							} else if (name.equals(("MaxAttachmentSize"))) {
-								if (!"".equals(policySettingNode.getNodeValue()))
-									maxAttachmentSize = Long.parseLong(policySettingNode.getNodeValue());
+					} else if (name.equals(("AttachmentsEnabled"))) {
+						if (!"".equals(policySettingNode.getTextContent()))
+							attachmentsEnabled = Boolean.parseBoolean(policySettingNode.getTextContent());
 
-							} else if (name.equals(("MaxCalendarAgeFilter"))) {
-								if (!"".equals(policySettingNode.getNodeValue()))
-									maxCalendarAgeFilter = Long.parseLong(policySettingNode.getNodeValue());
+					} else if (name.equals(("DevicePasswordEnabled"))) {
+						if (!"".equals(policySettingNode.getTextContent()))
+							devicePasswordEnabled = Boolean.parseBoolean(policySettingNode.getTextContent());
 
-							} else if (name.equals(("MaxDevicePasswordFailedAttempts"))) {
-								if (!"".equals(policySettingNode.getNodeValue()))
-									maxDevicePasswordFailedAttempts = Long.parseLong(policySettingNode.getNodeValue());
+					} else if (name.equals(("DevicePasswordExpiration"))) {
+						if (!"".equals(policySettingNode.getTextContent()))
+							devicePasswordExpiration = Long.parseLong(policySettingNode.getTextContent());
 
-							} else if (name.equals(("MaxEmailAgeFilter"))) {
-								if (!"".equals(policySettingNode.getNodeValue()))
-									maxEmailAgeFilter = Long.parseLong(policySettingNode.getNodeValue());
+					} else if (name.equals(("DevicePasswordHistory"))) {
+						if (!"".equals(policySettingNode.getTextContent()))
+							devicePasswordHistory = Long.parseLong(policySettingNode.getTextContent());
 
-							} else if (name.equals(("MaxEmailBodyTruncationSize"))) {
-								if (!"".equals(policySettingNode.getNodeValue()))
-									maxEmailBodyTruncationSize = Integer.parseInt(policySettingNode.getNodeValue());
+					} else if (name.equals(("MaxAttachmentSize"))) {
+						if (!"".equals(policySettingNode.getTextContent()))
+							maxAttachmentSize = Long.parseLong(policySettingNode.getTextContent());
 
-							} else if (name.equals(("MaxEmailHTMLBodyTruncationSize"))) {
-								if (!"".equals(policySettingNode.getNodeValue()))
-									maxEmailHTMLBodyTruncationSize = Integer.parseInt(policySettingNode.getNodeValue());
+					} else if (name.equals(("MaxCalendarAgeFilter"))) {
+						if (!"".equals(policySettingNode.getTextContent()))
+							maxCalendarAgeFilter = Long.parseLong(policySettingNode.getTextContent());
 
-							} else if (name.equals(("MaxInactivityTimeDeviceLock"))) {
-								if (!"".equals(policySettingNode.getNodeValue()))
-									maxInactivityTimeDeviceLock = Long.parseLong(policySettingNode.getNodeValue());
+					} else if (name.equals(("MaxDevicePasswordFailedAttempts"))) {
+						if (!"".equals(policySettingNode.getTextContent()))
+							maxDevicePasswordFailedAttempts = Long.parseLong(policySettingNode.getTextContent());
 
-							} else if (name.equals(("MinDevicePasswordComplexCharacters"))) {
-								if (!"".equals(policySettingNode.getNodeValue()))
-									minDevicePasswordComplexCharacters = Byte
-											.parseByte(policySettingNode.getNodeValue());
+					} else if (name.equals(("MaxEmailAgeFilter"))) {
+						if (!"".equals(policySettingNode.getTextContent()))
+							maxEmailAgeFilter = Long.parseLong(policySettingNode.getTextContent());
 
-							} else if (name.equals(("MinDevicePasswordLength"))) {
-								if (!"".equals(policySettingNode.getNodeValue()))
-									minDevicePasswordLength = Byte.parseByte(policySettingNode.getNodeValue());
+					} else if (name.equals(("MaxEmailBodyTruncationSize"))) {
+						if (!"".equals(policySettingNode.getTextContent()))
+							maxEmailBodyTruncationSize = Integer.parseInt(policySettingNode.getTextContent());
 
-							} else if (name.equals(("PasswordRecoveryEnabled"))) {
-								if (!"".equals(policySettingNode.getNodeValue()))
-									passwordRecoveryEnabled = Boolean.parseBoolean(policySettingNode.getNodeValue());
+					} else if (name.equals(("MaxEmailHTMLBodyTruncationSize"))) {
+						if (!"".equals(policySettingNode.getTextContent()))
+							maxEmailHTMLBodyTruncationSize = Integer.parseInt(policySettingNode.getTextContent());
 
-							} else if (name.equals(("RequireDeviceEncryption"))) {
-								if (!"".equals(policySettingNode.getNodeValue()))
-									requireDeviceEncryption = Boolean.parseBoolean(policySettingNode.getNodeValue());
+					} else if (name.equals(("MaxInactivityTimeDeviceLock"))) {
+						if (!"".equals(policySettingNode.getTextContent()))
+							maxInactivityTimeDeviceLock = Long.parseLong(policySettingNode.getTextContent());
 
-							} else if (name.equals(("RequireEncryptedSMIMEMessages"))) {
-								if (!"".equals(policySettingNode.getNodeValue()))
-									requireEncryptedSMIMEMessages = Boolean
-											.parseBoolean(policySettingNode.getNodeValue());
+					} else if (name.equals(("MinDevicePasswordComplexCharacters"))) {
+						if (!"".equals(policySettingNode.getTextContent()))
+							minDevicePasswordComplexCharacters = Byte.parseByte(policySettingNode.getTextContent());
 
-							} else if (name.equals(("RequireEncryptionSMIMEAlgorithm"))) {
-								if (!"".equals(policySettingNode.getNodeValue()))
-									requireEncryptionSMIMEAlgorithm = Integer
-											.parseInt(policySettingNode.getNodeValue());
+					} else if (name.equals(("MinDevicePasswordLength"))) {
+						if (!"".equals(policySettingNode.getTextContent()))
+							minDevicePasswordLength = Byte.parseByte(policySettingNode.getTextContent());
 
-							} else if (name.equals(("RequireManualSyncWhenRoaming"))) {
-								if (!"".equals(policySettingNode.getNodeValue()))
-									requireManualSyncWhenRoaming = Boolean
-											.parseBoolean(policySettingNode.getNodeValue());
+					} else if (name.equals(("PasswordRecoveryEnabled"))) {
+						if (!"".equals(policySettingNode.getTextContent()))
+							passwordRecoveryEnabled = Boolean.parseBoolean(policySettingNode.getTextContent());
 
-							} else if (name.equals(("RequireSignedSMIMEAlgorithm"))) {
-								if (!"".equals(policySettingNode.getNodeValue()))
-									requireSignedSMIMEAlgorithm = Integer.parseInt(policySettingNode.getNodeValue());
+					} else if (name.equals(("RequireDeviceEncryption"))) {
+						if (!"".equals(policySettingNode.getTextContent()))
+							requireDeviceEncryption = Boolean.parseBoolean(policySettingNode.getTextContent());
 
-							} else if (name.equals(("RequireSignedSMIMEMessages"))) {
-								if (!"".equals(policySettingNode.getNodeValue()))
-									requireSignedSMIMEMessages = Boolean.parseBoolean(policySettingNode.getNodeValue());
+					} else if (name.equals(("RequireEncryptedSMIMEMessages"))) {
+						if (!"".equals(policySettingNode.getTextContent()))
+							requireEncryptedSMIMEMessages = Boolean.parseBoolean(policySettingNode.getTextContent());
 
-							} else if (name.equals(("RequireStorageCardEncryption"))) {
-								if (!"".equals(policySettingNode.getNodeValue()))
-									requireStorageCardEncryption = Boolean
-											.parseBoolean(policySettingNode.getNodeValue());
+					} else if (name.equals(("RequireEncryptionSMIMEAlgorithm"))) {
+						if (!"".equals(policySettingNode.getTextContent()))
+							requireEncryptionSMIMEAlgorithm = Integer.parseInt(policySettingNode.getTextContent());
 
-							} else if (name.equals(("UnapprovedInROMApplicationList"))) {
-								if (!"".equals(policySettingNode.getNodeValue()))
-									unapprovedInROMApplicationList = parseAppList(policySettingNode);
+					} else if (name.equals(("RequireManualSyncWhenRoaming"))) {
+						if (!"".equals(policySettingNode.getTextContent()))
+							requireManualSyncWhenRoaming = Boolean.parseBoolean(policySettingNode.getTextContent());
 
-							} else {
-							}
-						}
+					} else if (name.equals(("RequireSignedSMIMEAlgorithm"))) {
+						if (!"".equals(policySettingNode.getTextContent()))
+							requireSignedSMIMEAlgorithm = Integer.parseInt(policySettingNode.getTextContent());
+
+					} else if (name.equals(("RequireSignedSMIMEMessages"))) {
+						if (!"".equals(policySettingNode.getTextContent()))
+							requireSignedSMIMEMessages = Boolean.parseBoolean(policySettingNode.getTextContent());
+
+					} else if (name.equals(("RequireStorageCardEncryption"))) {
+						if (!"".equals(policySettingNode.getTextContent()))
+							requireStorageCardEncryption = Boolean.parseBoolean(policySettingNode.getTextContent());
+
+					} else if (name.equals(("UnapprovedInROMApplicationList"))) {
+						if (!"".equals(policySettingNode.getTextContent()))
+							unapprovedInROMApplicationList = parseAppList(policySettingNode);
+
+					} else {
 					}
 				}
 			}
-		} catch (Exception e) {
-			return false;
 		}
 
 		return true;

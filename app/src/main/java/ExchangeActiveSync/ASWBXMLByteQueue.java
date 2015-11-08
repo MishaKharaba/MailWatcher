@@ -18,7 +18,7 @@ public class ASWBXMLByteQueue {
 		do {
 			returnValue <<= 7;
 			singleByte = this.Dequeue();
-			returnValue += (int) (singleByte & 0x7F);
+			returnValue |= singleByte & 0x7F;
 		} while (checkContinuationBit(singleByte));
 		return returnValue;
 	}

@@ -683,6 +683,8 @@ public class ASWBXML {
 	// it into the parser.
 	public void loadXml(String xmlString) throws Exception {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		factory.setNamespaceAware(true);
+		//factory.setIgnoringElementContentWhitespace(true);
 		DocumentBuilder builder = factory.newDocumentBuilder();
 		InputSource is = new InputSource(new StringReader(xmlString));
 		xmlDoc = builder.parse(is);
@@ -692,7 +694,7 @@ public class ASWBXML {
 	public String getXml() throws Exception {
 		TransformerFactory tf = TransformerFactory.newInstance();
 		Transformer transformer = tf.newTransformer();
-		transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 		StringWriter writer = new StringWriter();
 		transformer.transform(new DOMSource(xmlDoc), new StreamResult(writer));
 		String output = writer.getBuffer().toString();
@@ -704,6 +706,8 @@ public class ASWBXML {
 	// of parsing the WBXML stream.
 	public void loadBytes(byte[] byteWBXML) throws Exception {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		factory.setNamespaceAware(true);
+		//factory.setIgnoringElementContentWhitespace(true);
 		DocumentBuilder builder = factory.newDocumentBuilder();
 		xmlDoc = builder.newDocument();
 
@@ -807,8 +811,8 @@ public class ASWBXML {
 				boolean hasAttributes = false;
 				boolean hasContent = false;
 				// Check the attributes and contents flags
-				hasAttributes = (currentByte & 0x80) > 0;
-				hasContent = (currentByte & 0x40) > 0;
+				hasAttributes = (currentByte & 0x80) != 0;
+				hasContent = (currentByte & 0x40) != 0;
 				// Determine the token
 				byte token = (byte) (currentByte & 0x3F);
 				if (hasAttributes)
@@ -819,7 +823,7 @@ public class ASWBXML {
 				if (tagName == null) {
 					// This shouldn't happen, but if it does, log
 					// the hex token for investigation.
-					tagName = String.format("UNKNOWN_TAG_{0,2:X}", token);
+					tagName = String.format("UNKNOWN_TAG_%02X", token);
 				}
 
 				Node newNode = xmlDoc.createElementNS(codePages[currentCodePage].getNamespace(), tagName);
@@ -993,13 +997,14 @@ public class ASWBXML {
 			// The second is used to assign a prefix that serves as a
 			// placeholder for a namespace, and looks like:
 			// xmlns:airsync="AirSync"
-			if (attribute.getNodeName().equalsIgnoreCase("XMLNS")) {
+			String nodeName = attribute.getNodeName();
+			if (nodeName.equalsIgnoreCase("xmlns")) {
 				// If the Name property of the attribute is XMLNS, then
 				// this is the first form. Look up the code page
 				// and set it as the default.
 				int codePage = getCodePageByNamespace(attributeValue);
 				defaultCodePage = codePage;
-			} else if (attribute.getPrefix().equalsIgnoreCase("XMLNS")) {
+			} else if ("xmlns".equalsIgnoreCase(attribute.getPrefix())) {
 				// If the Prefix property of the attribute is XMLNS,
 				// then this is the second form. Look up the code page
 				// and save the placeholder in the codepage's Xmlns
@@ -1046,14 +1051,13 @@ public class ASWBXML {
 	// multi-byte integer.
 	private byte[] encodeMultiByteInteger(int value) throws Exception {
 		ByteArrayOutputStream byteList = new ByteArrayOutputStream();
-		while (value > 0) {
+		while (value != 0) {
 			byte addByte = (byte) (value & 0x7F);
 			if (byteList.size() > 0) {
 				addByte |= 0x80;
 			}
-
 			byteList.write(addByte);
-			value >>= 7;
+			value >>>= 7;
 		}
 		byte[] bytes = byteList.toByteArray();
 		for (int i = 0, n = bytes.length / 2; i < n; i++) {

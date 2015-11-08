@@ -49,7 +49,7 @@ public class ASWBXMLCodePage {
 
 	// This function returns the tag for a given
 	// token.
-	public String getTag(short token) throws Exception {
+	public String getTag(byte token) throws Exception {
 		if (tokenLookup.containsKey(token))
 			return tokenLookup.get(token);
 

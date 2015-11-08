@@ -707,7 +707,6 @@ public class ASWBXML {
 	public void loadBytes(byte[] byteWBXML) throws Exception {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		factory.setNamespaceAware(true);
-		//factory.setIgnoringElementContentWhitespace(true);
 		DocumentBuilder builder = factory.newDocumentBuilder();
 		xmlDoc = builder.newDocument();
 

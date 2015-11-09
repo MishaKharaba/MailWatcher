@@ -5,7 +5,6 @@ import java.net.HttpURLConnection;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -24,14 +23,6 @@ import ExchangeActiveSync.Xmlns;
 // This class represents a Provision command request
 // as specified in MS-ASPROV section 2.2.
 public class ASProvisionRequest extends ASCommandRequest {
-	public enum PolicyAcknowledgement {
-		// This enumeration covers the acceptable values
-		// of the Status element in a Provision request
-		// when acknowledging a policy, as specified
-		// in MS-ASPROV section 3.1.5.1.2.1.
-		__dummyEnum__0, Success, PartialSuccess, PolicyIgnored, ExternalManagement
-	}
-
 	private static String policyType = "MS-EAS-Provisioning-WBXML";
 	private boolean isAcknowledgement = false;
 	private boolean isRemoteWipe = false;
@@ -156,7 +147,6 @@ public class ASProvisionRequest extends ASCommandRequest {
 
 		TransformerFactory tf = TransformerFactory.newInstance();
 		Transformer transformer = tf.newTransformer();
-		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 		StringWriter writer = new StringWriter();
 		transformer.transform(new DOMSource(provisionXML), new StreamResult(writer));
 		String output = writer.getBuffer().toString();

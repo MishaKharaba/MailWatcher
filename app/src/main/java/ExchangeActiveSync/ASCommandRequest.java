@@ -7,7 +7,6 @@ import java.net.URLEncoder;
 import java.util.Base64;
 
 import ExchangeActiveSync.ASCommandResponse;
-import ExchangeActiveSync.ASError;
 import ExchangeActiveSync.ASWBXML;
 import ExchangeActiveSync.CommandParameter;
 
@@ -223,29 +222,17 @@ public class ASCommandRequest {
 	// This function uses the ASWBXML class to decode
 	// a WBXML stream into XML.
 	private String decodeWBXML(byte[] wbxml) throws Exception {
-		try {
-			ASWBXML decoder = new ASWBXML();
-			decoder.loadBytes(wbxml);
-			return decoder.getXml();
-		} catch (Exception ex) {
-			ASError.reportException(ex);
-			return "";
-		}
-
+		ASWBXML decoder = new ASWBXML();
+		decoder.loadBytes(wbxml);
+		return decoder.getXml();
 	}
 
 	// This function uses the ASWBXML class to encode
 	// XML into a WBXML stream.
 	private byte[] encodeXMLString(String xmlString) throws Exception {
-		try {
-			ASWBXML encoder = new ASWBXML();
-			encoder.loadXml(xmlString);
-			return encoder.getBytes();
-		} catch (Exception ex) {
-			ASError.reportException(ex);
-			return null;
-		}
-
+		ASWBXML encoder = new ASWBXML();
+		encoder.loadXml(xmlString);
+		return encoder.getBytes();
 	}
 
 }

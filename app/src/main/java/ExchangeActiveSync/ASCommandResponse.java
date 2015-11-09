@@ -3,7 +3,6 @@ package ExchangeActiveSync;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import ExchangeActiveSync.ASError;
 import ExchangeActiveSync.ASWBXML;
 
 // This class represents a generic Exchange ActiveSync command response.
@@ -53,14 +52,9 @@ public class ASCommandResponse {
 	// This function uses the ASWBXML class to decode
 	// a WBXML stream into XML.
 	private String decodeWBXML(byte[] wbxml) throws Exception {
-		try {
-			ASWBXML decoder = new ASWBXML();
-			decoder.loadBytes(wbxml);
-			return decoder.getXml();
-		} catch (Exception ex) {
-			ASError.reportException(ex);
-			return "";
-		}
+		ASWBXML decoder = new ASWBXML();
+		decoder.loadBytes(wbxml);
+		return decoder.getXml();
 
 	}
 

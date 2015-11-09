@@ -6,7 +6,6 @@ import java.io.StringWriter;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -684,7 +683,6 @@ public class ASWBXML {
 	public void loadXml(String xmlString) throws Exception {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		factory.setNamespaceAware(true);
-		//factory.setIgnoringElementContentWhitespace(true);
 		DocumentBuilder builder = factory.newDocumentBuilder();
 		InputSource is = new InputSource(new StringReader(xmlString));
 		xmlDoc = builder.parse(is);
@@ -694,7 +692,6 @@ public class ASWBXML {
 	public String getXml() throws Exception {
 		TransformerFactory tf = TransformerFactory.newInstance();
 		Transformer transformer = tf.newTransformer();
-		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 		StringWriter writer = new StringWriter();
 		transformer.transform(new DOMSource(xmlDoc), new StreamResult(writer));
 		String output = writer.getBuffer().toString();
@@ -767,10 +764,10 @@ public class ASWBXML {
 				// case here and display the data in a user-friendly way
 				// This is purely to avoid doing it at the higher level for now.
 				String opaqueString = "";
-				String __dummyScrutVar1 = currentNode.getNodeName();
+				String nodeName = currentNode.getNodeName();
 				// The Mime element contains a MIME stream which is human
 				// readable, so read it as a string.
-				if (__dummyScrutVar1.equals("Mime")) {
+				if ("Mime".equals(nodeName)) {
 					opaqueString = bytes.dequeueString(opaqueLength);
 				} else {
 					// ConversationId and ConversationIndex are binary and
@@ -921,7 +918,7 @@ public class ASWBXML {
 			if (name.equals("Mime")) {
 				// The Mime element contains a MIME stream which is human
 				// readable.
-				byteList.write(encodeHexStringAsOpaqueData(node.getNodeValue()));
+				byteList.write(encodeStringAsOpaqueData(node.getNodeValue()));
 			} else {
 				// ConversationId and ConversationIndex are binary and
 				// not human readable in pure form. So for convenience, these

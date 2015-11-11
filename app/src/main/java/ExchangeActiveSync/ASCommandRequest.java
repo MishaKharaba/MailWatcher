@@ -1,10 +1,11 @@
 package ExchangeActiveSync;
 
+import android.util.Base64;
+
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.Base64;
 
 import ExchangeActiveSync.ASCommandResponse;
 import ExchangeActiveSync.ASWBXML;
@@ -36,7 +37,7 @@ public class ASCommandRequest {
 
 	public void setCredentials(String user, String pwd) throws Exception {
 		String credential = user + ":" + pwd;
-		encodedCredential = Base64.getEncoder().encodeToString(credential.getBytes("UTF-8"));
+		encodedCredential = Base64.encodeToString(credential.getBytes("UTF-8"), Base64.DEFAULT);
 	}
 
 	public String getServer() throws Exception {

@@ -707,6 +707,11 @@ public class ASWBXML {
 		DocumentBuilder builder = factory.newDocumentBuilder();
 		xmlDoc = builder.newDocument();
 
+		if (byteWBXML.length == 0) {
+			xmlDoc.appendChild(xmlDoc.createElement("root"));
+			return;
+		}
+
 		ASWBXMLByteQueue bytes = new ASWBXMLByteQueue(byteWBXML);
 		// Version is ignored
 		byte version = bytes.Dequeue();

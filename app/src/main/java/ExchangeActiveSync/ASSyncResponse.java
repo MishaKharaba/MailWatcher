@@ -21,7 +21,8 @@ import org.xml.sax.InputSource;
 import ExchangeActiveSync.ASCommandResponse;
 import ExchangeActiveSync.Namespaces;
 import ExchangeActiveSync.ServerSyncCommand;
-import ExchangeActiveSync.ServerSyncCommand.ServerSyncCommandType;
+import ExchangeActiveSync.EasSyncCommand;
+import ExchangeActiveSync.EasSyncCommand.Type;
 import ExchangeActiveSync.Xmlns;
 
 // This class represents the Sync command response
@@ -33,7 +34,7 @@ public class ASSyncResponse extends ASCommandResponse {
 	}
 
 	private Document responseXml = null;
-	private int status = 0;
+	private int status;
 
 	public int getStatus() throws Exception {
 		return status;
@@ -96,23 +97,39 @@ public class ASSyncResponse extends ASCommandResponse {
 
 	// This function returns the new items (Adds)
 	// for a folder.
-	public List<ServerSyncCommand> getServerAddsForFolder(String folderId) throws Exception {
-		List<ServerSyncCommand> addCommands = new ArrayList<>();
+	public List<ServerSyncCommand> getServerSyncsForFolder(String folderId) throws Exception {
+		List<ServerSyncCommand> srvCommands = new ArrayList<>();
 		XPath xPath = createXPath();
 		String collectionXPath = ".//airsync:Collection[airsync:CollectionId = \"" + folderId
-				+ "\"]/airsync:Commands/airsync:Add";
-		NodeList addNodes = (NodeList) xPath.evaluate(collectionXPath, responseXml, XPathConstants.NODESET);
-		for (int i = 0, n = addNodes.getLength(); i < n; i++) {
-			Node addNode = addNodes.item(i);
-			Node serverIdNode = (Node) xPath.evaluate("./airsync:ServerId", addNode, XPathConstants.NODE);
-			Node applicationDataNode = (Node) xPath.evaluate("./airsync:ApplicationData", addNode, XPathConstants.NODE);
+				+ "\"]/airsync:Commands/*";
+		NodeList cmdNodes = (NodeList) xPath.evaluate(collectionXPath, responseXml, XPathConstants.NODESET);
+		for (int i = 0, n = cmdNodes.getLength(); i < n; i++) {
+			Node cmdNode = cmdNodes.item(i);
+			String cmdTypeStr = cmdNode.getLocalName();
+			EasSyncCommand.Type cmdType = EasSyncCommand.Type.Invalid;
+			switch (cmdTypeStr) {
+			case "Add":
+				cmdType = EasSyncCommand.Type.Add;
+				break;
+			case "Change":
+				cmdType = EasSyncCommand.Type.Change;
+				break;
+			case "Delete":
+				cmdType = EasSyncCommand.Type.Delete;
+				break;
+			case "SoftDelete":
+				cmdType = EasSyncCommand.Type.SoftDelete;
+				break;
+			}
+			Node serverIdNode = (Node) xPath.evaluate("./airsync:ServerId", cmdNode, XPathConstants.NODE);
+			Node applicationDataNode = (Node) xPath.evaluate("./airsync:ApplicationData", cmdNode, XPathConstants.NODE);
 			if (serverIdNode != null && applicationDataNode != null) {
-				ServerSyncCommand addCommand = new ServerSyncCommand(ServerSyncCommandType.Add,
-						serverIdNode.getTextContent(), applicationDataNode, null);
-				addCommands.add(addCommand);
+				String serverId = serverIdNode.getTextContent();
+				ServerSyncCommand srvCommand = new ServerSyncCommand(cmdType, serverId, applicationDataNode, null);
+				srvCommands.add(srvCommand);
 			}
 		}
-		return addCommands;
+		return srvCommands;
 	}
 
 	// This function extracts the response status from the

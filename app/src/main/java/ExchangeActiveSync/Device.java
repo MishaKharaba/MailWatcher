@@ -13,94 +13,94 @@ import org.w3c.dom.Node;
 public class Device {
 	static final String strSettingsXmlns = "settings";
 	static final String strSettingsNamespace = "Settings";
-	private String deviceID = null;
-	private String deviceType = null;
-	private String model = null;
-	private String IMEINumber = null;
-	private String friendlyName = null;
-	private String operatingSystem = null;
-	private String operatingSystemLanguage = null;
-	private String phoneNumber = null;
-	private String mobileOperator = null;
-	private String userAgent = null;
+	private String deviceID;
+	private String deviceType;
+	private String model;
+	private String IMEINumber;
+	private String friendlyName;
+	private String operatingSystem;
+	private String operatingSystemLanguage;
+	private String phoneNumber;
+	private String mobileOperator;
+	private String userAgent;
 
 	public String getDeviceID() throws Exception {
 		return deviceID;
 	}
 
-	public void setDeviceID(String value) throws Exception {
+	public void setDeviceID(String value) {
 		deviceID = value;
 	}
 
-	public String getDeviceType() throws Exception {
+	public String getDeviceType() {
 		return deviceType;
 	}
 
-	public void setDeviceType(String value) throws Exception {
+	public void setDeviceType(String value) {
 		deviceType = value;
 	}
 
-	public String getModel() throws Exception {
+	public String getModel() {
 		return model;
 	}
 
-	public void setModel(String value) throws Exception {
+	public void setModel(String value) {
 		model = value;
 	}
 
-	public String getIMEI() throws Exception {
+	public String getIMEI() {
 		return IMEINumber;
 	}
 
-	public void setIMEI(String value) throws Exception {
+	public void setIMEI(String value) {
 		IMEINumber = value;
 	}
 
-	public String getFriendlyName() throws Exception {
+	public String getFriendlyName() {
 		return friendlyName;
 	}
 
-	public void setFriendlyName(String value) throws Exception {
+	public void setFriendlyName(String value) {
 		friendlyName = value;
 	}
 
-	public String getOperatingSystem() throws Exception {
+	public String getOperatingSystem() {
 		return operatingSystem;
 	}
 
-	public void setOperatingSystem(String value) throws Exception {
+	public void setOperatingSystem(String value) {
 		operatingSystem = value;
 	}
 
-	public String getOperatingSystemLanguage() throws Exception {
+	public String getOperatingSystemLanguage() {
 		return operatingSystemLanguage;
 	}
 
-	public void setOperatingSystemLanguage(String value) throws Exception {
+	public void setOperatingSystemLanguage(String value) {
 		operatingSystemLanguage = value;
 	}
 
-	public String getPhoneNumber() throws Exception {
+	public String getPhoneNumber() {
 		return phoneNumber;
 	}
 
-	public void setPhoneNumber(String value) throws Exception {
+	public void setPhoneNumber(String value) {
 		phoneNumber = value;
 	}
 
-	public String getMobileOperator() throws Exception {
+	public String getMobileOperator() {
 		return mobileOperator;
 	}
 
-	public void setMobileOperator(String value) throws Exception {
+	public void setMobileOperator(String value) {
 		mobileOperator = value;
 	}
 
-	public String getUserAgent() throws Exception {
+	public String getUserAgent() {
 		return userAgent;
 	}
 
-	public void setUserAgent(String value) throws Exception {
+	public void setUserAgent(String value) {
 		userAgent = value;
 	}
 

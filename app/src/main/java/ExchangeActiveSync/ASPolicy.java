@@ -36,7 +36,7 @@ public class ASPolicy {
 	}
 
 	public enum PolicyStatus {
-		__dummyEnum__0, Success, NoPolicyDefined, PolicyTypeUnknown, PolicyDataCorrupt, PolicyKeyMismatch
+		None, Success, NoPolicyDefined, PolicyTypeUnknown, PolicyDataCorrupt, PolicyKeyMismatch
 	}
 
 	private int status = 0;

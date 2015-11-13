@@ -156,8 +156,7 @@ public class ASCommandRequest {
 			throw new Exception("ASCommandRequest: WbxmlBytes not initialized.");
 
 		// Generate the URI for the request
-		String uriString = String.format("%s//%s/Microsoft-Server-ActiveSync?%s", useSSL ? "https:" : "http:", server,
-				getRequestLine());
+		String uriString = String.format("%s/Microsoft-Server-ActiveSync?%s", getServer(), getRequestLine());
 		URL url = new URL(uriString);
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		connection.setRequestProperty("Authorization", "Basic " + getEncodedCredentials());

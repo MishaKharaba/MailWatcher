@@ -9,6 +9,6 @@ public class ProvisionStatus {
 	public final static int ServerError = 3;
 	public final static int DeviceNotFullyProvisionable = 139;
 	public final static int LegacyDeviceOnStrictPolicy = 141;
-	public final static int ExternallyManagedDevicesNotAllowed = 14;
-
+	public final static int ExternallyManagedDevicesNotAllowed = 145;
+    public final static int DeviceInformationRequired = 165;
 }

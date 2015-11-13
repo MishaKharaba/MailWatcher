@@ -1,5 +1,8 @@
 package ExchangeActiveSync;
 
+import java.io.ByteArrayOutputStream;
+import java.nio.charset.Charset;
+
 // This class extends the .NET Queue<byte> class
 // to add some WBXML-specific functionality.
 public class ASWBXMLByteQueue {
@@ -38,7 +41,7 @@ public class ASWBXMLByteQueue {
 	// This function pops a string from the WBXML stream.
 	// It will read from the stream until a null byte is found.
 	public String dequeueString() throws Exception {
-		StringBuilder returnStringBuilder = new StringBuilder();
+		ByteArrayOutputStream byteArray = new ByteArrayOutputStream();
 		byte currentByte = 0x00;
 		do {
 			// TODO: Improve this handling. We are technically UTF-8, meaning
@@ -47,27 +50,20 @@ public class ASWBXMLByteQueue {
 			// characters outside of the US-ASCII range
 			currentByte = this.Dequeue();
 			if (currentByte != 0x00) {
-				returnStringBuilder.append((char) currentByte);
+				byteArray.write(currentByte);
 			}
 
 		} while (currentByte != 0x00);
-		return returnStringBuilder.toString();
+		String str = new String(byteArray.toByteArray(), "UTF-8");
+		return str;
 	}
 
 	// This function pops a string of the specified length from
 	// the WBXML stream.
 	public String dequeueString(int length) throws Exception {
-		StringBuilder returnStringBuilder = new StringBuilder();
-		byte currentByte = 0x00;
-		for (int i = 0; i < length; i++) {
-			// TODO: Improve this handling. We are technically UTF-8, meaning
-			// that characters could be more than one byte long. This will fail
-			// if we have
-			// characters outside of the US-ASCII range
-			currentByte = this.Dequeue();
-			returnStringBuilder.append((char) currentByte);
-		}
-		return returnStringBuilder.toString();
+		byte[] buffer = dequeueBinary(length);
+		String str = new String(buffer, "UTF-8");
+		return str;
 	}
 
 	// This function dequeues a byte array of the specified length

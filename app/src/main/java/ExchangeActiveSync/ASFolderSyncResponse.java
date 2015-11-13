@@ -62,7 +62,7 @@ public class ASFolderSyncResponse extends ASCommandResponse {
 			result.add(fi);
 		}
 		// Then process deletes
-		NodeList deleteNodes = (NodeList) xPath.evaluate(".//folderhierarchy:Add", responseXml, XPathConstants.NODESET);
+		NodeList deleteNodes = (NodeList) xPath.evaluate(".//folderhierarchy:Delete", responseXml, XPathConstants.NODESET);
 		for (int i = 0, n = deleteNodes.getLength(); i < n; i++) {
 			Node deleteNode = (Node) deleteNodes.item(i);
 			FolderInfo fi = new FolderInfo();

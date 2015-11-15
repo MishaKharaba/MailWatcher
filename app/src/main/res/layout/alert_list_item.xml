@@ -29,7 +29,7 @@
 
 
             <TextView
-                android:id="@+id/alert_account_name"
+                android:id="@+id/account_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
@@ -47,7 +47,7 @@
                 android:textSize="14sp"/>
 
             <TextView
-                android:id="@+id/alarm_label_tone_selection"
+                android:id="@+id/alarm_tone"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"

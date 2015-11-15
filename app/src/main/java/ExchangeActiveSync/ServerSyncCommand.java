@@ -6,54 +6,54 @@ import org.w3c.dom.Node;
 // <Delete>, or <SoftDelete> node in a
 // Sync command response.
 public class ServerSyncCommand {
-	private EasSyncCommand.Type type = EasSyncCommand.Type.Invalid;
-	private String serverId;
-	private String itemClass;
-	private Node appDataXml;
+    private EasSyncCommand.Type type = EasSyncCommand.Type.Invalid;
+    private String serverId;
+    private String itemClass;
+    private Node appDataXml;
 
-	public ServerSyncCommand(EasSyncCommand.Type commandType, String id, Node appData, String changedItemClass)
-			throws Exception {
-		setType(commandType);
-		setServerId(id);
-		setAppDataXml(appData);
-		setItemClass(changedItemClass);
-	}
+    public ServerSyncCommand(EasSyncCommand.Type commandType, String id, Node appData, String changedItemClass)
+            throws Exception {
+        setType(commandType);
+        setServerId(id);
+        setAppDataXml(appData);
+        setItemClass(changedItemClass);
+    }
 
-	public EasSyncCommand.Type getType() throws Exception {
-		return type;
-	}
+    public EasSyncCommand.Type getType() throws Exception {
+        return type;
+    }
 
-	public String getServerId() throws Exception {
-		return serverId;
-	}
+    public String getServerId() throws Exception {
+        return serverId;
+    }
 
-	public String getItemClass() throws Exception {
-		return itemClass;
-	}
+    public String getItemClass() throws Exception {
+        return itemClass;
+    }
 
-	public Node getAppDataXml() throws Exception {
-		return appDataXml;
-	}
+    public Node getAppDataXml() throws Exception {
+        return appDataXml;
+    }
 
-	public void setServerId(String serverId) {
-		this.serverId = serverId;
-	}
+    public void setServerId(String serverId) {
+        this.serverId = serverId;
+    }
 
-	public void setItemClass(String itemClass) {
-		this.itemClass = itemClass;
-	}
+    public void setItemClass(String itemClass) {
+        this.itemClass = itemClass;
+    }
 
-	public void setAppDataXml(Node appDataXml) {
-		this.appDataXml = appDataXml;
-	}
+    public void setAppDataXml(Node appDataXml) {
+        this.appDataXml = appDataXml;
+    }
 
-	public void setType(EasSyncCommand.Type type) {
-		this.type = type;
-	}
+    public void setType(EasSyncCommand.Type type) {
+        this.type = type;
+    }
 
-	public EasMessage getMessage() throws Exception {
+    public EasMessage getMessage() throws Exception {
 /*	
- 	<ApplicationData>
+     <ApplicationData>
 		<email:To>&quot;Mykhaylo Kharaba&quot; &lt;Mykhaylo.Kharaba@eleks.com&gt;</email:To>
 		<email:From>&quot;Heartbreak&quot; &lt;Heartbreak@enjoylove.in.net&gt;</email:From>
 		<email:Subject>Read This if you miss your ex</email:Subject>
@@ -77,31 +77,31 @@ public class ServerSyncCommand {
 		<email:Categories/>
 	</ApplicationData>
 */
-		if (getAppDataXml() == null)
-			return null;
+        if (getAppDataXml() == null)
+            return null;
 
-		EasMessage email = new EasMessage();
-		Node node = getAppDataXml().getFirstChild();
-		while (node != null) {
-			String prefix = node.getPrefix();
-			String namespace = node.getOwnerDocument().lookupNamespaceURI(prefix);
-			if (namespace == "Email") {
-				String nodeName = node.getLocalName();
-				switch (nodeName) {
-				case "To":
-					email.setTo(node.getTextContent());
-					break;
-				case "From":
-					email.setFrom(node.getTextContent());
-					break;
-				case "Subject":
-					email.setSubject(node.getTextContent());
-					break;
-				}
-			}
-			node = node.getNextSibling();
-		}
-		return email;
-	}
+        EasMessage email = new EasMessage();
+        Node node = getAppDataXml().getFirstChild();
+        while (node != null) {
+            String prefix = node.getPrefix();
+            String namespace = node.getOwnerDocument().lookupNamespaceURI(prefix);
+            if (namespace == "Email") {
+                String nodeName = node.getLocalName();
+                switch (nodeName) {
+                    case "To":
+                        email.setTo(node.getTextContent());
+                        break;
+                    case "From":
+                        email.setFrom(node.getTextContent());
+                        break;
+                    case "Subject":
+                        email.setSubject(node.getTextContent());
+                        break;
+                }
+            }
+            node = node.getNextSibling();
+        }
+        return email;
+    }
 
 }

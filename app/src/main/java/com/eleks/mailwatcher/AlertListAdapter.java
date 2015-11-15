@@ -69,11 +69,11 @@ public class AlertListAdapter extends BaseAdapter
         TextView txtName = (TextView) view.findViewById(R.id.alert_item_name);
         txtName.setText(alert.name);
 
-        TextView txtTone = (TextView) view.findViewById(R.id.alarm_label_tone_selection);
+        TextView txtTone = (TextView) view.findViewById(R.id.alarm_tone);
         Ringtone ringtone = RingtoneManager.getRingtone(mContext, alert.alarmTone);
         txtTone.setText(ringtone.getTitle(mContext));
 
-        TextView txtAccount = (TextView) view.findViewById(R.id.alert_account_name);
+        TextView txtAccount = (TextView) view.findViewById(R.id.account_name);
         txtAccount.setText(alert.userAccount);
 
         TextView txtLabel = (TextView) view.findViewById(R.id.alert_label_name);

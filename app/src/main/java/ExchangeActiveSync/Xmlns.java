@@ -5,8 +5,7 @@
 package ExchangeActiveSync;
 
 
-public class Xmlns   
-{
+public class Xmlns {
     public static final String airSyncXmlns = "airsync";
     public static final String airSyncBaseXmlns = "airsyncbase";
     public static final String folderHierarchyXmlns = "folderhierarchy";

@@ -14,7 +14,7 @@ import java.util.List;
 
 public class AlertDBHelper extends SQLiteOpenHelper
 {
-    public static final int DATABASE_VERSION = 5;
+    public static final int DATABASE_VERSION = 6;
     public static final String DATABASE_NAME = "mailwatcher.db";
 
     public static abstract class Alert implements BaseColumns
@@ -24,6 +24,7 @@ public class AlertDBHelper extends SQLiteOpenHelper
         public static final String COLUMN_NAME = "name";
         public static final String COLUMN_ALARM_TONE = "tone";
         public static final String COLUMN_ENABLED = "enabled";
+        public static final String COLUMN_ACCOUNT_TYPE = "accountType";
         public static final String COLUMN_USER_ACCOUNT = "userAccount";
         public static final String COLUMN_LABEL_ID = "labelId";
         public static final String COLUMN_LABEL_NAME = "labelName";
@@ -38,6 +39,7 @@ public class AlertDBHelper extends SQLiteOpenHelper
             Alert.COLUMN_NAME + " TEXT," +
             Alert.COLUMN_ALARM_TONE + " TEXT," +
             Alert.COLUMN_ENABLED + " BOOLEAN," +
+            Alert.COLUMN_ACCOUNT_TYPE + " INTEGER," +
             Alert.COLUMN_USER_ACCOUNT + " TEXT," +
             Alert.COLUMN_LABEL_ID + " TEXT," +
             Alert.COLUMN_LABEL_NAME + " TEXT," +
@@ -75,6 +77,8 @@ public class AlertDBHelper extends SQLiteOpenHelper
         model.alarmTone = !"".equals(c.getString(c.getColumnIndex(Alert.COLUMN_ALARM_TONE)))
                 ? Uri.parse(c.getString(c.getColumnIndex(Alert.COLUMN_ALARM_TONE))) : null;
         model.isEnabled = c.getInt(c.getColumnIndex(Alert.COLUMN_ENABLED)) != 0;
+        model.accountType = AlertModel.AccountType.getValue(
+                c.getInt(c.getColumnIndex(Alert.COLUMN_ACCOUNT_TYPE)));
         model.userAccount = c.getString(c.getColumnIndex(Alert.COLUMN_USER_ACCOUNT));
         model.labelId = c.getString(c.getColumnIndex(Alert.COLUMN_LABEL_ID));
         model.labelName = c.getString(c.getColumnIndex(Alert.COLUMN_LABEL_NAME));
@@ -94,6 +98,7 @@ public class AlertDBHelper extends SQLiteOpenHelper
         values.put(Alert.COLUMN_NAME, model.name);
         values.put(Alert.COLUMN_ALARM_TONE, (model.alarmTone != null) ? model.alarmTone.toString() : "");
         values.put(Alert.COLUMN_ENABLED, model.isEnabled);
+        values.put(Alert.COLUMN_ACCOUNT_TYPE, model.accountType.ordinal());
         values.put(Alert.COLUMN_USER_ACCOUNT, model.userAccount);
         values.put(Alert.COLUMN_LABEL_ID, model.labelId);
         values.put(Alert.COLUMN_LABEL_NAME, model.labelName);

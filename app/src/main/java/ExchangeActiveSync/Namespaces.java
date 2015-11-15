@@ -5,8 +5,7 @@
 package ExchangeActiveSync;
 
 
-public class Namespaces   
-{
+public class Namespaces {
     public static final String airSyncNamespace = "AirSync";
     public static final String airSyncBaseNamespace = "AirSyncBase";
     public static final String folderHierarchyNamespace = "FolderHierarchy";

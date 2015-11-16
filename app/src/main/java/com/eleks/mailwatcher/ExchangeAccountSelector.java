@@ -2,12 +2,17 @@ package com.eleks.mailwatcher;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.accounts.AccountManagerCallback;
+import android.accounts.AccountManagerFuture;
+import android.accounts.AuthenticatorException;
+import android.accounts.OperationCanceledException;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.nfc.Tag;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -17,6 +22,7 @@ import com.eleks.mailwatcher.service.GmailReader;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.services.gmail.model.Label;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -72,7 +78,7 @@ public class ExchangeAccountSelector implements IAccountSelector {
         final Account availableAccounts[] = this.accountManager.getAccountsByType(ExchangeAuthenticator.ACCOUNT_TYPE);
 
         if (availableAccounts.length == 0) {
-            Toast.makeText(getOwnedActivity(), "No accounts", Toast.LENGTH_SHORT).show();
+            addNewAccount(ExchangeAuthenticator.ACCOUNT_TYPE, null);
         } else {
             String name[] = new String[availableAccounts.length];
             for (int i = 0; i < availableAccounts.length; i++) {
@@ -97,6 +103,31 @@ public class ExchangeAccountSelector implements IAccountSelector {
                             }).create();
             alertDialog.show();
         }
+    }
+
+    private void addNewAccount(String accountType, String authTokenType) {
+        final AccountManagerFuture<Bundle> future = accountManager.addAccount(accountType, authTokenType,
+                null, null, getOwnedActivity(),
+                new AccountManagerCallback<Bundle>() {
+                    @Override
+                    public void run(AccountManagerFuture<Bundle> future) {
+                        try {
+                            if (!future.isCancelled()) {
+                                Bundle bnd = future.getResult();
+                                showShortToast("Account was created");
+                                accountName = bnd.getString(AccountManager.KEY_ACCOUNT_NAME);
+                                new GetFoldersTask().execute();
+                                if (result != null) {
+                                    result.Selected(accountName);
+                                }
+                            } else {
+                                showShortToast("Operation canceled");
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, null);
     }
 
     private void showShortToast(String text) {
@@ -133,6 +164,7 @@ public class ExchangeAccountSelector implements IAccountSelector {
                     }
                 }
             } catch (Exception e) {
+                e.printStackTrace();
                 error = e.getMessage();
             }
             return labelRecs;

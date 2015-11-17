@@ -10,6 +10,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
+
 import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
@@ -20,13 +21,35 @@ public class ASSyncResponse extends ASCommandResponse {
     public enum SyncStatus {
         // This enumeration covers the possible Status
         // values for FolderSync responses.
-        __dummyEnum__0, Success, __dummyEnum__1, InvalidSyncKey, ProtocolError, ServerError, ClientServerConversionError, ServerOverwriteConflict, ObjectNotFound, SyncCannotComplete, __dummyEnum__2, __dummyEnum__3, FolderHierarchyOutOfDate, PartialSyncNotValid, InvalidDelayValue, InvalidSync, Retry
+        None,
+        Success,
+        __dummyEnum__2,
+        InvalidSyncKey,
+        ProtocolError,
+        ServerError,
+        ClientServerConversionError,
+        ServerOverwriteConflict,
+        ObjectNotFound,
+        SyncCannotComplete,
+        __dummyEnum__10,
+        __dummyEnum__11,
+        FolderHierarchyOutOfDate,
+        PartialSyncNotValid,
+        InvalidDelayValue,
+        InvalidSync,
+        Retry;
+
+        public static SyncStatus value(int i) {
+            if (i >= 0 && i <= values().length)
+                return values()[i];
+            return null;
+        }
     }
 
     private Document responseXml = null;
-    private int status;
+    private SyncStatus status = SyncStatus.None;
 
-    public int getStatus() throws Exception {
+    public SyncStatus getStatus() throws Exception {
         return status;
     }
 
@@ -118,7 +141,7 @@ public class ASSyncResponse extends ASCommandResponse {
         XPath xPath = XPathFactory.newInstance().newXPath();
         Node statusNode = (Node) xPath.evaluate(".//AirSync:Sync//AirSync:Status", responseXml, XPathConstants.NODE);
         if (statusNode != null)
-            status = Integer.parseInt((statusNode.getTextContent()));
+            status = SyncStatus.value(Integer.parseInt((statusNode.getTextContent())));
     }
 
 }

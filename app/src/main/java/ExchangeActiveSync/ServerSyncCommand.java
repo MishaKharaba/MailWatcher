@@ -85,7 +85,7 @@ public class ServerSyncCommand {
         while (node != null) {
             String prefix = node.getPrefix();
             String namespace = node.getOwnerDocument().lookupNamespaceURI(prefix);
-            if (namespace == "Email") {
+            if ("Email".equals(namespace)) {
                 String nodeName = node.getLocalName();
                 switch (nodeName) {
                     case "To":

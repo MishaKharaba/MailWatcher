@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:layout_width="match_parent"
-             android:layout_height="wrap_content">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
 
     <RelativeLayout
         android:layout_width="fill_parent"
@@ -25,34 +25,65 @@
                 android:layout_marginEnd="8dp"
                 android:layout_marginRight="8dp"
                 android:hint="@string/alert_name"
-                android:textSize="20dp"/>
+                android:textSize="20sp" />
 
 
-            <TextView
-                android:id="@+id/account_name"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:hint="@string/email"
-                android:textSize="14sp"/>
+                android:layout_marginTop="8dp">
 
-            <TextView
-                android:id="@+id/alert_label_name"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/email" />
+
+                <TextView
+                    android:id="@+id/account_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginStart="8dp"
+                    android:text="@string/not_selected" />
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginTop="8dp"
-                android:hint="@string/label_name"
-                android:textSize="14sp"/>
+                android:layout_marginTop="8dp">
 
-            <TextView
-                android:id="@+id/alarm_tone"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_name" />
+
+                <TextView
+                    android:id="@+id/alert_label_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginStart="8dp"
+                    android:text="@string/not_selected" />
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:hint="@string/select_alarm_tone"
-                android:textSize="14sp"/>
+                android:layout_marginTop="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/alarm_tone" />
+
+                <TextView
+                    android:id="@+id/alarm_tone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginStart="8dp"
+                    android:hint="@string/not_selected" />
+            </LinearLayout>
         </LinearLayout>
 
         <ToggleButton
@@ -65,7 +96,7 @@
             android:background="@drawable/btn_toggle_bg"
             android:checked="true"
             android:textOff="OFF"
-            android:textOn="ON"/>
+            android:textOn="ON" />
     </RelativeLayout>
 
 </FrameLayout>

@@ -1,11 +1,14 @@
 package ExchangeActiveSync;
 
+import android.util.Log;
+
 import ExchangeActiveSync.ASPolicy.PolicyStatus;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class EasConnection {
+    private static final String TAG = EasConnection.class.getSimpleName();
     private String user;
     private String password;
     private String server;
@@ -142,6 +145,7 @@ public class EasConnection {
 
             }
         }
+        Log.d(TAG, String.format("getPolicyKey: policy=%d", policyKey));
         return policyKey;
     }
 
@@ -170,10 +174,11 @@ public class EasConnection {
             folder.setType(EasFolderType.valueOf(fi.type));
             folders.add(folder);
         }
+        Log.d(TAG, String.format("getFolders: policy=%d, folderCount=%d", policyKey, folders.size()));
         return folders;
     }
 
-    public String getFolderSyncKey(long policyKey, EasFolder folder) throws Exception {
+    public String getFolderSyncKey(long policyKey, String folderId) throws Exception {
         Device device = createDevice();
         ASSyncRequest initSyncReq = new ASSyncRequest();
         initSyncReq.setCredentials(getUser(), getPassword());
@@ -184,25 +189,36 @@ public class EasConnection {
         initSyncReq.setDeviceType(device.getDeviceType());
         initSyncReq.setPolicyKey(policyKey);
         FolderInfo fi = new FolderInfo();
-        fi.id = folder.getId();
-        fi.parentId = folder.getParentId();
-        fi.name = folder.getName();
-        fi.type = folder.getType().ordinal();
+        fi.id = folderId;
         initSyncReq.getFolders().add(fi);
         // inbox.areChangesIgnored = true;
 
         ASSyncResponse initSyncRes = (ASSyncResponse) initSyncReq.getResponse();
-        if (initSyncRes.getStatus() != ASSyncResponse.SyncStatus.Success.ordinal()) {
-            throw new Exception("Error returned from empty sync reqeust: " + initSyncRes.getStatus());
+        if (initSyncRes.getStatus() != ASSyncResponse.SyncStatus.Success) {
+            throw new Exception("Error returned from empty sync reqeust: " +
+                    initSyncRes.getStatus().toString());
         }
         fi.syncKey = initSyncRes.getSyncKeyForFolder(fi.id);
-
+        Log.d(TAG, String.format("getFolderSyncKey: policy=%d, folderId=%s, syncKey=%s",
+                policyKey, folderId, fi.syncKey));
         return fi.syncKey;
     }
 
-    public List<EasSyncCommand> getFolderSyncCommands(long policyKey, EasFolder folder) throws Exception {
+    public String getFolderLastSyncKey(long policyKey, String folderId, String syncKey) throws Exception {
+        EasSyncCommand syncCommands = new EasSyncCommand();
+        syncCommands.setSyncKey(syncKey);
+        do {
+            syncCommands = getFolderSyncCommands(policyKey, folderId, syncCommands.getSyncKey(), 512);
+        } while (syncCommands.allSize() > 0);
+        Log.d(TAG, String.format("getFolderLastSyncKey: policy=%d, folderId=%s, syncKey=%s, lastSyncKey=%s",
+                policyKey, folderId, syncKey, syncCommands.getSyncKey()));
+        return syncCommands.getSyncKey();
+    }
+
+    public EasSyncCommand getFolderSyncCommands(long policyKey, String folderId, String syncKey,
+                                                int maxCount) throws Exception {
         Device device = createDevice();
-        List<EasSyncCommand> syncCommands = new ArrayList<>();
+
         ASSyncRequest syncReq = new ASSyncRequest();
         syncReq.setCredentials(getUser(), getPassword());
         syncReq.setIgnoreCert(isIgnoreCertificate());
@@ -212,29 +228,33 @@ public class EasConnection {
         syncReq.setDeviceType(device.getDeviceType());
         syncReq.setPolicyKey(policyKey);
         FolderInfo fi = new FolderInfo();
-        fi.id = folder.getId();
-        fi.parentId = folder.getParentId();
-        fi.name = folder.getName();
-        fi.type = folder.getType().ordinal();
-        fi.syncKey = folder.getSyncKey();
+        fi.id = folderId;
+        //fi.parentId = folder.getParentId();
+        //fi.name = folder.getName();
+        //fi.type = folder.getType().ordinal();
+        fi.syncKey = syncKey;
         syncReq.getFolders().add(fi);
-        syncReq.setWindowSize(512);
+        syncReq.setWindowSize(maxCount);
         // inbox.useConversationMode = true;
 
         ASSyncResponse syncRes = (ASSyncResponse) syncReq.getResponse();
-        List<ServerSyncCommand> srvSyncs = syncRes.getServerSyncsForFolder(folder.getId());
-        if (syncRes.getStatus() == ASSyncResponse.SyncStatus.Success.ordinal()) {
-            String syncKey = syncRes.getSyncKeyForFolder(folder.getId());
-            folder.setSyncKey(syncKey);
+        List<ServerSyncCommand> srvSyncs = syncRes.getServerSyncsForFolder(folderId);
+        if (syncRes.getStatus() == ASSyncResponse.SyncStatus.Success) {
+            syncKey = syncRes.getSyncKeyForFolder(folderId);
+        } else if (syncRes.getStatus() != ASSyncResponse.SyncStatus.None) {
+            throw new Exception("Error returned from sync reqeust: " + syncRes.getStatus());
         }
 
+        EasSyncCommand syncCommands = new EasSyncCommand();
+        syncCommands.setSyncKey(syncKey);
         for (ServerSyncCommand srvSync : srvSyncs) {
-            EasSyncCommand syncCommand = new EasSyncCommand();
-            syncCommand.setId(srvSync.getServerId());
-            syncCommand.setType(srvSync.getType());
+            EasSyncCommand.Command syncCommand = syncCommands.add(
+                    srvSync.getServerId(), srvSync.getType());
             syncCommand.setMessage(srvSync.getMessage());
-            syncCommands.add(syncCommand);
         }
+
+        Log.d(TAG, String.format("getFolderSyncCommands: policy=%d, folderId=%s, syncKey=%s, syncCmdCount=%d",
+                policyKey, folderId, syncCommands.getSyncKey(), syncCommands.allSize()));
 
         return syncCommands;
     }

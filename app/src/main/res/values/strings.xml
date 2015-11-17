@@ -4,12 +4,12 @@
     <string name="add_alert">Add alert</string>
     <string name="title_activity_alert_details">Alert Details</string>
     <string name="save">Save</string>
-    <string name="alarm_tone">Alarm Tone</string>
+    <string name="alarm_tone">Ring:</string>
     <string name="select_alarm_tone">Select Alarm Tone</string>
     <string name="alert_name">Alert Name</string>
     <string name="account_name">Account</string>
-    <string name="label_name">Label</string>
-    <string name="email">e-mail</string>
+    <string name="label_name">Folder:</string>
+    <string name="email">Mail:</string>
     <string name="mail_alert">Mail Alert</string>
     <string name="dismiss">Dismiss</string>
     <string name="title_activity_login">Sign in</string>

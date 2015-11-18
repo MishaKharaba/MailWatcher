@@ -225,7 +225,6 @@ public class AlertDetailsActivity extends AppCompatActivity implements IAccountS
         }
     }
 
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {

@@ -5,11 +5,11 @@
     <header android:fragment="com.eleks.mailwatcher.SettingsActivity$GeneralPreferenceFragment"
         android:title="@string/pref_header_general" android:icon="@drawable/ic_info_black_24dp" />
 
-    <header android:fragment="com.eleks.mailwatcher.SettingsActivity$NotificationPreferenceFragment"
-        android:title="@string/pref_header_notifications"
-        android:icon="@drawable/ic_notifications_black_24dp" />
+    <!--<header android:fragment="com.eleks.mailwatcher.SettingsActivity$NotificationPreferenceFragment"-->
+        <!--android:title="@string/pref_header_notifications"-->
+        <!--android:icon="@drawable/ic_notifications_black_24dp" />-->
 
-    <header android:fragment="com.eleks.mailwatcher.SettingsActivity$DataSyncPreferenceFragment"
-        android:title="@string/pref_header_data_sync" android:icon="@drawable/ic_sync_black_24dp" />
+    <!--<header android:fragment="com.eleks.mailwatcher.SettingsActivity$DataSyncPreferenceFragment"-->
+        <!--android:title="@string/pref_header_data_sync" android:icon="@drawable/ic_sync_black_24dp" />-->
 
 </preference-headers>

@@ -3,19 +3,19 @@ package com.eleks.mailwatcher;
 import android.Manifest;
 import android.accounts.AccountManager;
 import android.app.Activity;
-import android.content.Context;
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.widget.ArrayAdapter;
-import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.eleks.mailwatcher.model.LabelRec;
 import com.eleks.mailwatcher.service.GmailReader;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.util.ExponentialBackOff;
 import com.google.api.services.gmail.GmailScopes;
@@ -155,11 +155,23 @@ public class GmailAccountSelector implements IAccountSelector {
     private class GetLabelsTask extends AsyncTask<Void, Void, List<LabelRec>> {
         @Override
         protected List<LabelRec> doInBackground(Void... params) {
-            GmailReader reader = new GmailReader(mCredential);
+            final GmailReader reader = new GmailReader(mCredential);
             List<Label> labels = reader.getLabelListSafe();
             if (reader.getLastError() instanceof UserRecoverableAuthIOException) {
-                Intent intent = ((UserRecoverableAuthIOException) reader.getLastError()).getIntent();
-                mOwnedActivity.startActivityForResult(intent, REQUEST_AUTHORIZATION);
+                if (reader.getLastError() instanceof GooglePlayServicesAvailabilityIOException) {
+                    final GooglePlayServicesAvailabilityIOException availabilityException = (GooglePlayServicesAvailabilityIOException) reader.getLastError();
+                    mOwnedActivity.runOnUiThread(new Runnable() {
+                        public void run() {
+                            Dialog dialog = GooglePlayServicesUtil.getErrorDialog(
+                                    availabilityException.getConnectionStatusCode(),
+                                    mOwnedActivity, REQUEST_GOOGLE_PLAY_SERVICES);
+                            dialog.show();
+                        }
+                    });
+                } else {
+                    Intent intent = ((UserRecoverableAuthIOException) reader.getLastError()).getIntent();
+                    mOwnedActivity.startActivityForResult(intent, REQUEST_AUTHORIZATION);
+                }
             }
             ArrayList<LabelRec> labelRecs = null;
             if (labels != null) {

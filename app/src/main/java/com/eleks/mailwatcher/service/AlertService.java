@@ -10,11 +10,14 @@ import android.content.pm.PackageManager;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
+import com.eleks.mailwatcher.AlertListActivity;
+import com.eleks.mailwatcher.EHelper;
 import com.eleks.mailwatcher.PlayAlarmScreenActivity;
 import com.eleks.mailwatcher.authentification.ExchangeAuthenticator;
 import com.eleks.mailwatcher.model.AlertDBHelper;
 import com.eleks.mailwatcher.model.AlertModel;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException;
 import com.google.api.client.util.ExponentialBackOff;
 import com.google.api.services.gmail.GmailScopes;
 import com.google.api.services.gmail.model.History;
@@ -29,7 +32,6 @@ import java.util.Calendar;
 import java.util.List;
 
 import ExchangeActiveSync.EasConnection;
-import ExchangeActiveSync.EasFolder;
 import ExchangeActiveSync.EasSyncCommand;
 
 public class AlertService extends IntentService {
@@ -41,20 +43,6 @@ public class AlertService extends IntentService {
         super("AlertService");
     }
 
-    @Override
-    protected void onHandleIntent(Intent intent) {
-        try {
-            Log.i(TAG, "Wakeup event received");
-            try {
-                run(intent);
-            } catch (Exception e) {
-                Log.e(TAG, "run()", e);
-            }
-        } finally {
-            WakeupReceiver.completeWakefulIntent(intent);
-        }
-    }
-
     public static void update(Context context) {
         AlertDBHelper dbHelper = new AlertDBHelper(context);
         boolean hasActiveAlerts = dbHelper.hasActiveAlerts();
@@ -64,7 +52,21 @@ public class AlertService extends IntentService {
             WakeupReceiver.cancel(context);
     }
 
-    private void run(Intent intent) {
+    @Override
+    protected void onHandleIntent(Intent intent) {
+        try {
+            Log.i(TAG, "Wakeup event received");
+            try {
+                run();
+            } catch (Exception e) {
+                Log.e(TAG, "run()", e);
+            }
+        } finally {
+            WakeupReceiver.completeWakefulIntent(intent);
+        }
+    }
+
+    private void run() {
         List<AlertModel> alerts = dbHelper.getAlerts();
         for (AlertModel alert : alerts) {
             if (alert.isEnabled) {
@@ -76,11 +78,18 @@ public class AlertService extends IntentService {
                     } else {
                         checkGmailAlert(alert);
                     }
+                } catch (GooglePlayServicesAvailabilityIOException e) {
+                    alert.lastError = EHelper.getMessage(e);
+                    alert.isEnabled = false;
                 } catch (Exception e) {
-                    alert.lastError = e.getMessage();
+                    alert.lastError = EHelper.getMessage(e);
                     Log.e(TAG, "checkAlert() " + alert.name, e);
                 }
                 dbHelper.updateAlert(alert);
+
+                Intent intent = new Intent();
+                intent.setAction(AlertListActivity.REFRESH);
+                sendBroadcast(intent);
             }
         }
     }
@@ -142,17 +151,16 @@ public class AlertService extends IntentService {
     private void checkExchangeAlert(AlertModel alert) throws Exception {
         AccountManager accountManager = AccountManager.get(getBaseContext());
         Account account = new Account(alert.userAccount, ExchangeAuthenticator.ACCOUNT_TYPE);
+        String server = accountManager.getUserData(account, ExchangeAuthenticator.KEY_SERVER);
         String user = accountManager.getUserData(account, ExchangeAuthenticator.KEY_USER);
-        Boolean ignoreCert = "1".equals(accountManager.getUserData(account,
-                ExchangeAuthenticator.KEY_IGNORE_CERT));
-        Long policyKey = Long.parseLong(accountManager.getUserData(account,
-                ExchangeAuthenticator.KEY_POLICY_KEY));
+        String pwd = accountManager.getPassword(account);
+        Boolean ignoreCert = "1".equals(accountManager.getUserData(account, ExchangeAuthenticator.KEY_IGNORE_CERT));
+        Long policyKey = Long.parseLong(accountManager.getUserData(account, ExchangeAuthenticator.KEY_POLICY_KEY));
+
 
         EasConnection con = new EasConnection();
-        con.setServer(accountManager.getUserData(account, ExchangeAuthenticator.KEY_SERVER));
-        con.setCredential(
-                accountManager.getUserData(account, ExchangeAuthenticator.KEY_USER),
-                accountManager.getPassword(account));
+        con.setServer(server);
+        con.setCredential(user, pwd);
         con.setIgnoreCertificate(ignoreCert);
 
         if (alert.historyId == null || alert.historyId.isEmpty()) {

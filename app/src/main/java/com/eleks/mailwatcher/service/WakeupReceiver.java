@@ -9,19 +9,10 @@ import android.content.pm.PackageManager;
 import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
 
-public class WakeupReceiver extends WakefulBroadcastReceiver
-{
+public class WakeupReceiver extends WakefulBroadcastReceiver {
     public final static String TAG = WakeupReceiver.class.getSimpleName();
 
-    @Override
-    public void onReceive(Context context, Intent intent)
-    {
-        Intent service = new Intent(context, AlertService.class);
-        startWakefulService(context, service);
-    }
-
-    public static void activate(Context context)
-    {
+    public static void activate(Context context) {
         Log.d(TAG, "activate wakeup");
         Intent intent = new Intent(context, WakeupReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -35,13 +26,11 @@ public class WakeupReceiver extends WakefulBroadcastReceiver
                 PackageManager.DONT_KILL_APP);
     }
 
-    public static void cancel(Context context)
-    {
+    public static void cancel(Context context) {
         Log.d(TAG, "cancel wakeup");
         Intent intent = new Intent(context, WakeupReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_NO_CREATE);
-        if (pendingIntent != null)
-        {
+        if (pendingIntent != null) {
             AlarmManager alarmMgr = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
             alarmMgr.cancel(pendingIntent);
         }
@@ -53,5 +42,11 @@ public class WakeupReceiver extends WakefulBroadcastReceiver
 
         pm.setComponentEnabledSetting(receiver, PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
                 PackageManager.DONT_KILL_APP);
+    }
+
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        Intent service = new Intent(context, AlertService.class);
+        startWakefulService(context, service);
     }
 }

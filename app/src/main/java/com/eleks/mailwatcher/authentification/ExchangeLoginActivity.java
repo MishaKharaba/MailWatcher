@@ -22,16 +22,15 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.eleks.mailwatcher.EHelper;
 import com.eleks.mailwatcher.R;
 
 import ExchangeActiveSync.EasConnection;
 
 public class ExchangeLoginActivity extends AccountAuthenticatorActivity {
-    private static final String TAG = ExchangeLoginActivity.class.getName();
-
     public final static String ARG_AUTH_TYPE = "AUTH_TYPE";
     public final static String ARG_IS_ADDING_NEW_ACCOUNT = "IS_ADDING_ACCOUNT";
-
+    private static final String TAG = ExchangeLoginActivity.class.getName();
     private AccountManager mAccountManager;
     private UserLoginTask mAuthTask = null;
     // UI references.
@@ -225,7 +224,7 @@ public class ExchangeLoginActivity extends AccountAuthenticatorActivity {
                 policyKey = con.getPolicyKey();
                 return true;
             } catch (Exception e) {
-                error = e.getMessage();
+                error = EHelper.getMessage(e);
                 return false;
             }
         }

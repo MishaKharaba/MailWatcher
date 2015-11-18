@@ -165,7 +165,7 @@ public class ExchangeAccountSelector implements IAccountSelector {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                error = e.getMessage();
+                error = EHelper.getMessage(e);
             }
             return labelRecs;
         }

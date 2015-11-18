@@ -46,6 +46,18 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".AlertListActivity" />
         </activity>
+        <activity
+            android:name=".authentification.ExchangeLoginActivity"
+            android:label="@string/title_activity_login">
+
+        </activity>
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".AlertListActivity" />
+        </activity>
 
         <receiver android:name=".service.WakeupReceiver" />
         <receiver
@@ -56,19 +68,22 @@
             </intent-filter>
         </receiver>
 
-        <service android:name=".service.AlertService" />
+        <service
+            android:name=".service.AlertService"
+            android:exported="false" />
 
-        <service android:name=".authentification.ExchangeAuthenticatorService">
+        <service
+            android:name=".authentification.ExchangeAuthenticatorService"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator" />
             </intent-filter>
-            <meta-data android:name="android.accounts.AccountAuthenticator"
+
+            <meta-data
+                android:name="android.accounts.AccountAuthenticator"
                 android:resource="@xml/authenticator" />
         </service>
 
-        <activity
-            android:name=".authentification.ExchangeLoginActivity"
-            android:label="@string/title_activity_login"></activity>
     </application>
 
 </manifest>

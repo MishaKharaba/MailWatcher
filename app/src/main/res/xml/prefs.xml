@@ -3,5 +3,4 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory android:title="Account Preferences" />
     <SwitchPreference android:title="Debug Logs" android:key="logsVerbose" android:summary="Show debug logs on LogCat"/>
-    <EditTextPreference android:title="Text" android:key="msg" android:summary="Some text"   />
 </PreferenceScreen>

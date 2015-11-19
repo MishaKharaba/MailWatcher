@@ -43,7 +43,7 @@ public class AlertListActivity extends AppCompatActivity {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (intent.getAction().equals(REFRESH)) {
-                    updateAlertList();
+                    updateAlertList(false);
                 }
             }
         };
@@ -84,7 +84,7 @@ public class AlertListActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
-            updateAlertList();
+            updateAlertList(true);
         }
     }
 
@@ -101,14 +101,14 @@ public class AlertListActivity extends AppCompatActivity {
             alert.historyId = null;
         }
         dbHelper.updateAlert(alert);
-
-        updateAlertList();
+        updateAlertList(true);
     }
 
-    private void updateAlertList() {
+    private void updateAlertList(boolean updateAlertService) {
         mAdapter.setAlerts(dbHelper.getAlerts());
         mAdapter.notifyDataSetChanged();
-        AlertService.update(this);
+        if (updateAlertService)
+            AlertService.update(this);
     }
 
     public void deleteAlarm(long id) {

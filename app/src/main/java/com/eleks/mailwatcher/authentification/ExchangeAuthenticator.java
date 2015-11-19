@@ -13,14 +13,13 @@ import android.util.Log;
 import static android.accounts.AccountManager.KEY_BOOLEAN_RESULT;
 
 public class ExchangeAuthenticator extends AbstractAccountAuthenticator {
-    public static final String ACCOUNT_TYPE = "com.eleks.mailwatcher.exchange";
-
+    public final static String TAG = ExchangeAuthenticator.class.getSimpleName();
+    public final static String ACCOUNT_TYPE = "com.eleks.mailwatcher.exchange";
     public final static String KEY_USER = "USER";
     public final static String KEY_SERVER = "SERVER";
     public final static String KEY_IGNORE_CERT = "IGNORE_CERT";
     public final static String KEY_POLICY_KEY = "POLICY_KEY";
 
-    private String TAG = ExchangeAuthenticator.class.getName();
     private final Context mContext;
 
     public ExchangeAuthenticator(Context context) {

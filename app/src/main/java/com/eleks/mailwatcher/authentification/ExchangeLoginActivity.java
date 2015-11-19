@@ -30,7 +30,7 @@ import ExchangeActiveSync.EasConnection;
 public class ExchangeLoginActivity extends AccountAuthenticatorActivity {
     public final static String ARG_AUTH_TYPE = "AUTH_TYPE";
     public final static String ARG_IS_ADDING_NEW_ACCOUNT = "IS_ADDING_ACCOUNT";
-    private static final String TAG = ExchangeLoginActivity.class.getName();
+    private static final String TAG = ExchangeLoginActivity.class.getSimpleName();
     private AccountManager mAccountManager;
     private UserLoginTask mAuthTask = null;
     // UI references.

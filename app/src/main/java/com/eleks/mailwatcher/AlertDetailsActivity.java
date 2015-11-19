@@ -184,7 +184,8 @@ public class AlertDetailsActivity extends AppCompatActivity implements IAccountS
             }
 
             AlertDialog selectFolderDialog = new AlertDialog.Builder(this)
-                    .setTitle("Pick Account")
+                    .setTitle("Pick Folder")
+                    .setNegativeButton(android.R.string.cancel, null)
                     .setItems(
                             names,
                             new DialogInterface.OnClickListener() {

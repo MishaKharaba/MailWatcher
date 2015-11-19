@@ -68,6 +68,7 @@ public class AlertService extends IntentService {
 
     private void run() {
         List<AlertModel> alerts = dbHelper.getAlerts();
+        boolean checkCancel = false;
         for (AlertModel alert : alerts) {
             if (alert.isEnabled) {
                 alert.lastCheckDate = Calendar.getInstance().getTime();
@@ -81,9 +82,10 @@ public class AlertService extends IntentService {
                 } catch (GooglePlayServicesAvailabilityIOException e) {
                     alert.lastError = EHelper.getMessage(e);
                     alert.isEnabled = false;
+                    checkCancel = true;
                 } catch (Exception e) {
                     alert.lastError = EHelper.getMessage(e);
-                    Log.e(TAG, "checkAlert() " + alert.name, e);
+                    Log.e(TAG, "Error in checkAlert() " + alert.name, e);
                 }
                 dbHelper.updateAlert(alert);
 
@@ -91,6 +93,10 @@ public class AlertService extends IntentService {
                 intent.setAction(AlertListActivity.REFRESH);
                 sendBroadcast(intent);
             }
+        }
+        if (checkCancel) {
+            if (!dbHelper.hasActiveAlerts())
+                WakeupReceiver.cancel(getBaseContext());
         }
     }
 
@@ -136,7 +142,7 @@ public class AlertService extends IntentService {
             }
         }
         alert.historyId = historyRec.historyId.toString();
-        Log.i(TAG, "Last history ID " + alert.historyId);
+        Log.i(TAG, "Last gmail history ID " + alert.historyId);
     }
 
     private BigInteger getHistoryId(GmailReader reader) throws IOException {
@@ -185,7 +191,7 @@ public class AlertService extends IntentService {
         }
 
         alert.historyId = syncCommands.getSyncKey();
-        Log.i(TAG, "Last history ID " + alert.historyId);
+        Log.i(TAG, "Last exchange sync key ID " + alert.historyId);
     }
 
     private void startAlert(AlertModel alert) {

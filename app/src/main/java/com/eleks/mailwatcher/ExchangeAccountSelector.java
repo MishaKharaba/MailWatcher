@@ -4,25 +4,15 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
-import android.accounts.AuthenticatorException;
-import android.accounts.OperationCanceledException;
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.nfc.Tag;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.eleks.mailwatcher.authentification.ExchangeAuthenticator;
 import com.eleks.mailwatcher.model.LabelRec;
-import com.eleks.mailwatcher.service.GmailReader;
-import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
-import com.google.api.services.gmail.model.Label;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +21,7 @@ import ExchangeActiveSync.EasFolder;
 import ExchangeActiveSync.EasFolderType;
 
 public class ExchangeAccountSelector implements IAccountSelector {
+    private static final int REQUEST_ACCOUNT_PICKER = 1000;
     private final Activity ownedActivity;
     private final Result result;
     private final AccountManager accountManager;
@@ -66,6 +57,17 @@ public class ExchangeAccountSelector implements IAccountSelector {
 
     @Override
     public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_ACCOUNT_PICKER) {
+            if (resultCode == Activity.RESULT_OK) {
+                this.accountName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
+                new GetFoldersTask().execute();
+                showShortToast("Account selected");
+                if (result != null) {
+                    result.Selected(accountName);
+                }
+            }
+            return true;
+        }
         return false;
     }
 
@@ -75,34 +77,15 @@ public class ExchangeAccountSelector implements IAccountSelector {
     }
 
     private void showAccountPicker() {
-        final Account availableAccounts[] = this.accountManager.getAccountsByType(ExchangeAuthenticator.ACCOUNT_TYPE);
+        Account account = accountName != null
+                ? new Account(accountName, ExchangeAuthenticator.ACCOUNT_TYPE) : null;
 
-        if (availableAccounts.length == 0) {
-            addNewAccount(ExchangeAuthenticator.ACCOUNT_TYPE, null);
-        } else {
-            String name[] = new String[availableAccounts.length];
-            for (int i = 0; i < availableAccounts.length; i++) {
-                name[i] = availableAccounts[i].name;
-            }
+        @SuppressWarnings("deprecation")
+        Intent intent = AccountManager.newChooseAccountIntent(account, null,
+                new String[]{ExchangeAuthenticator.ACCOUNT_TYPE}, true,
+                null, null, null, null);
 
-            // Account picker
-            AlertDialog alertDialog = new AlertDialog.Builder(getOwnedActivity())
-                    .setTitle("Pick Account")
-                    .setItems(
-                            name,
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    accountName = availableAccounts[which].name;
-                                    new GetFoldersTask().execute();
-                                    showShortToast("Account selected");
-                                    if (result != null) {
-                                        result.Selected(accountName);
-                                    }
-                                }
-                            }).create();
-            alertDialog.show();
-        }
+        getOwnedActivity().startActivityForResult(intent, REQUEST_ACCOUNT_PICKER);
     }
 
     private void addNewAccount(String accountType, String authTokenType) {
@@ -174,7 +157,7 @@ public class ExchangeAccountSelector implements IAccountSelector {
         protected void onPostExecute(List<LabelRec> labelRecs) {
             if (labelRecs != null) {
                 folders = labelRecs;
-                showShortToast("Labels loaded");
+                showShortToast("Folders loaded");
             } else if (error != null) {
                 showShortToast(error);
             }

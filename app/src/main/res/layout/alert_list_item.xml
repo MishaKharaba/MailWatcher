@@ -10,6 +10,7 @@
         android:orientation="horizontal">
 
         <LinearLayout
+            android:id="@+id/left_info"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
@@ -88,6 +89,18 @@
                     android:layout_marginStart="8dp"
                     android:hint="@string/not_selected" />
             </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp">
+
+                <TextView
+                    android:id="@+id/last_checked"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="00:00:00" />
+            </LinearLayout>
         </LinearLayout>
 
         <ToggleButton
@@ -96,11 +109,18 @@
             android:layout_height="48dp"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
+            android:layout_marginTop="32dp"
             android:background="@drawable/btn_toggle_bg"
             android:checked="true"
             android:textOff="OFF"
             android:textOn="ON" />
+
+        <TextView
+            android:id="@+id/error"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/left_info"
+            android:textColor="@android:color/holo_red_dark" />
     </RelativeLayout>
 
 </FrameLayout>

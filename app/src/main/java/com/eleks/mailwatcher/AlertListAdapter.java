@@ -103,18 +103,19 @@ public class AlertListAdapter extends BaseAdapter {
             }
         });
 
-        view.setTag(alert.id);
-        view.setOnClickListener(new View.OnClickListener() {
+        final View leftInfo = view.findViewById(R.id.left_info);
+        leftInfo.setTag(alert.id);
+        leftInfo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ((AlertListActivity) mContext).startAlertDetailsActivity((Long) view.getTag());
+                ((AlertListActivity) mContext).startAlertDetailsActivity((Long) leftInfo.getTag());
             }
         });
 
-        view.setOnLongClickListener(new View.OnLongClickListener() {
+        leftInfo.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                ((AlertListActivity) mContext).deleteAlarm((Long) view.getTag());
+                ((AlertListActivity) mContext).deleteAlarm((Long) leftInfo.getTag());
                 return true;
             }
         });

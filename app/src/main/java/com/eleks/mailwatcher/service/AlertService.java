@@ -1,21 +1,23 @@
 package com.eleks.mailwatcher.service;
 
-import android.Manifest;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.support.v4.content.ContextCompat;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.eleks.mailwatcher.AlertListActivity;
 import com.eleks.mailwatcher.EHelper;
 import com.eleks.mailwatcher.PlayAlarmScreenActivity;
+import com.eleks.mailwatcher.R;
 import com.eleks.mailwatcher.authentification.ExchangeAuthenticator;
 import com.eleks.mailwatcher.model.AlertDBHelper;
 import com.eleks.mailwatcher.model.AlertModel;
+import com.eleks.mailwatcher.model.MailMessageRec;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException;
 import com.google.api.client.util.ExponentialBackOff;
@@ -26,7 +28,7 @@ import com.google.api.services.gmail.model.HistoryMessageAdded;
 import com.google.api.services.gmail.model.Message;
 
 import java.io.IOException;
-import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -40,7 +42,7 @@ public class AlertService extends IntentService {
     private AlertDBHelper dbHelper = new AlertDBHelper(this);
 
     public AlertService() {
-        super("AlertService");
+        super("MailWatcher.AlertService");
     }
 
     public static void update(Context context) {
@@ -74,6 +76,7 @@ public class AlertService extends IntentService {
                 alert.lastCheckDate = Calendar.getInstance().getTime();
                 alert.lastError = null;
                 try {
+                    checkDeviceOnline();
                     if (alert.accountType == AlertModel.AccountType.exchange) {
                         checkExchangeAlert(alert);
                     } else {
@@ -100,63 +103,93 @@ public class AlertService extends IntentService {
         }
     }
 
+    private void checkDeviceOnline() throws Exception {
+        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        if (networkInfo == null)
+            throw new Exception(getString(R.string.err_no_active_network));
+        if (!networkInfo.isConnected())
+            throw new Exception("Not connected to network: " + networkInfo.getReason());
+    }
+
+    private Account findAccount(AlertModel alert, AccountManager accountManager) {
+        Account[] accounts = accountManager.getAccountsByType(ExchangeAuthenticator.ACCOUNT_TYPE);
+        for (Account account : accounts) {
+            if (TextUtils.equals(account.name, alert.userAccount))
+                return account;
+        }
+        return null;
+    }
+
     private void checkGmailAlert(AlertModel alert) throws Exception {
         String[] SCOPES = {
                 GmailScopes.MAIL_GOOGLE_COM,
                 GmailScopes.GMAIL_LABELS,
                 GmailScopes.GMAIL_READONLY};
 
-        if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED) {
-            Log.e(TAG, "No permission: " + Manifest.permission.GET_ACCOUNTS);
-            return;
-        }
         GoogleAccountCredential credential = GoogleAccountCredential.usingOAuth2(
                 getApplicationContext(),
                 Arrays.asList(SCOPES))
                 .setBackOff(new ExponentialBackOff())
-                .setSelectedAccountName("misha.kharaba@gmail.com");
+                .setSelectedAccountName(alert.userAccount);
+
+        if (credential.getSelectedAccount() == null)
+            throw new Exception(String.format("Account '%s' not found", alert.userAccount));
 
         GmailReader reader = new GmailReader(credential);
-        BigInteger historyId;
-        if (alert.historyId == null || alert.historyId.isEmpty()) {
-            historyId = getHistoryId(reader);
-            if (historyId == null)
-                return;
-            alert.historyId = historyId.toString();
+        if (alert.historyId == null) {
+            String historyId = getHistoryId(reader, null);
+            Log.i(TAG, "Init gmail history ID " + historyId);
+            alert.historyId = historyId;
             dbHelper.updateAlert(alert);
-        } else {
-            historyId = new BigInteger(alert.historyId);
         }
-        GmailReader.HistoryRec historyRec = reader.getHistory(historyId, alert.labelId, 100);
+        List<MailMessageRec> msgList = new ArrayList<>();
+        boolean wasAlert = false;
+        GmailReader.HistoryRec historyRec = reader.getHistory(alert.historyId, alert.labelId, 1024);
         for (History history : historyRec.list) {
             List<HistoryMessageAdded> addedMessaged = history.getMessagesAdded();
             if (addedMessaged != null && addedMessaged.size() > 0) {
-                startAlert(alert);
-                break;
+                for (HistoryMessageAdded added : addedMessaged) {
+                    MailMessageRec msg = new MailMessageRec(added.getMessage());
+                    msgList.add(msg);
+                    wasAlert = true;
+                }
             }
 
             List<HistoryLabelAdded> addedLabels = history.getLabelsAdded();
             if (addedLabels != null && addedLabels.size() > 0) {
-                startAlert(alert);
-                break;
+                for (HistoryLabelAdded added : addedLabels) {
+                    MailMessageRec msg = new MailMessageRec(added.getMessage());
+                    msgList.add(msg);
+                    wasAlert = true;
+                }
             }
         }
+
+        if (wasAlert) {
+            startAlert(alert, msgList.get(0));
+        }
+
         alert.historyId = historyRec.historyId.toString();
         Log.i(TAG, "Last gmail history ID " + alert.historyId);
     }
 
-    private BigInteger getHistoryId(GmailReader reader) throws IOException {
-        List<Message> messages = reader.getMessages(1);
+    private String getHistoryId(GmailReader reader, String labelid) throws IOException {
+        List<Message> messages = reader.getMessages(labelid, 1);
         if (messages.size() > 0) {
             Message msg = reader.getMessage(messages.get(0).getId());
-            return msg.getHistoryId();
+            String historyId = msg.getHistoryId().toString();
+            GmailReader.HistoryRec historyRec = reader.getHistory(historyId, null, 1024);
+            return historyRec.historyId.toString();
         }
         return null;
     }
 
     private void checkExchangeAlert(AlertModel alert) throws Exception {
         AccountManager accountManager = AccountManager.get(getBaseContext());
-        Account account = new Account(alert.userAccount, ExchangeAuthenticator.ACCOUNT_TYPE);
+        Account account = findAccount(alert, accountManager);
+        if (account == null)
+            throw new Exception(String.format("Account '%s' not found", alert.userAccount));
         String server = accountManager.getUserData(account, ExchangeAuthenticator.KEY_SERVER);
         String user = accountManager.getUserData(account, ExchangeAuthenticator.KEY_USER);
         String pwd = accountManager.getPassword(account);
@@ -169,32 +202,38 @@ public class AlertService extends IntentService {
         con.setCredential(user, pwd);
         con.setIgnoreCertificate(ignoreCert);
 
-        if (alert.historyId == null || alert.historyId.isEmpty()) {
+        if (alert.historyId == null) {
             String syncKey = con.getFolderSyncKey(policyKey, alert.labelId);
             syncKey = con.getFolderLastSyncKey(policyKey, alert.labelId, syncKey);
             alert.historyId = syncKey;
+            Log.i(TAG, "Init exchange sync key ID " + alert.historyId);
             dbHelper.updateAlert(alert);
         }
 
         EasSyncCommand syncCommands = new EasSyncCommand();
         syncCommands.setSyncKey(alert.historyId);
+        List<MailMessageRec> msgList = new ArrayList<>();
         boolean wasAlert = false;
         do {
             syncCommands = con.getFolderSyncCommands(policyKey, alert.labelId, syncCommands.getSyncKey(), 512);
             if (syncCommands.getAdded().size() > 0) {
+                for (EasSyncCommand.Command cmd : syncCommands.getAdded()) {
+                    MailMessageRec msg = new MailMessageRec(cmd.getMessage());
+                    msgList.add(msg);
+                }
                 wasAlert = true;
             }
         } while (syncCommands.allSize() > 0);
 
         if (wasAlert) {
-            startAlert(alert);
+            startAlert(alert, msgList.get(0));
         }
 
         alert.historyId = syncCommands.getSyncKey();
         Log.i(TAG, "Last exchange sync key ID " + alert.historyId);
     }
 
-    private void startAlert(AlertModel alert) {
+    private void startAlert(AlertModel alert, MailMessageRec msg) {
         Log.i(TAG, "Starting play alarm screen");
         alert.lastAlarmDate = alert.lastCheckDate;
         Intent intent = new Intent(this, PlayAlarmScreenActivity.class);

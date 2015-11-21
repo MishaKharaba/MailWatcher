@@ -92,4 +92,6 @@
 
     <string name="pref_title_vibrate">Vibrate</string>
     <string name="title_pick_account">Select Account</string>
+    <string name="err_no_active_network">No active network</string>
+    <string name="select">Select</string>
 </resources>

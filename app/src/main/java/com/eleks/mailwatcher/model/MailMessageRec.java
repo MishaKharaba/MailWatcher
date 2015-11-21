@@ -2,6 +2,9 @@ package com.eleks.mailwatcher.model;
 
 import com.google.api.services.gmail.model.HistoryMessageAdded;
 import com.google.api.services.gmail.model.Message;
+import com.google.api.services.gmail.model.MessagePartHeader;
+
+import java.util.List;
 
 import ExchangeActiveSync.EasMessage;
 
@@ -21,7 +24,26 @@ public class MailMessageRec {
     }
 
     public MailMessageRec(Message msg) {
-        this(msg.getId(), null, null);
+        String to = null;
+        String from = null;
+        String subject = null;
+        List<MessagePartHeader> headers = msg.getPayload().getHeaders();
+        for (MessagePartHeader header : headers) {
+            switch (header.getName()) {
+                case "To":
+                    to = header.getValue();
+                    break;
+                case "From":
+                    from = header.getValue();
+                    break;
+                case "Subject":
+                    subject = header.getValue();
+                    break;
+            }
+        }
+        this.to = to;
+        this.from = from;
+        this.subject = subject;
     }
 
     public String getTo() {

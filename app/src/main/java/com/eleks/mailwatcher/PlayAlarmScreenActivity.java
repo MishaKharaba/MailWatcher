@@ -10,15 +10,13 @@ import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.eleks.mailwatcher.model.AlertDBHelper;
 
-public class PlayAlarmScreenActivity extends AppCompatActivity
-{
+public class PlayAlarmScreenActivity extends AppCompatActivity {
     public final String TAG = this.getClass().getSimpleName();
 
     private WakeLock mWakeLock;
@@ -27,8 +25,7 @@ public class PlayAlarmScreenActivity extends AppCompatActivity
     private static final int WAKELOCK_TIMEOUT = 60 * 1000;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_play_alarm_screen);
 
@@ -42,44 +39,22 @@ public class PlayAlarmScreenActivity extends AppCompatActivity
         tvMail.setText(mail);
         TextView tvLabel = (TextView) findViewById(R.id.alarm_label);
         tvLabel.setText(label);
+        startPlayer(tone);
 
-        //Play alarm tone
-        mPlayer = new MediaPlayer();
-        try
-        {
-            if (tone != null && !tone.equals(""))
-            {
-                Uri toneUri = Uri.parse(tone);
-                if (toneUri != null)
-                {
-                    mPlayer.setDataSource(this, toneUri);
-                    mPlayer.setAudioStreamType(AudioManager.STREAM_ALARM);
-                    mPlayer.setLooping(true);
-                    mPlayer.prepare();
-                    mPlayer.start();
-                }
-            }
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
 
         //Ensure wakelock release
-        Runnable releaseWakelock = new Runnable()
-        {
+        Runnable releaseWakelock = new Runnable() {
             @Override
-            public void run()
-            {
+            public void run() {
                 getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
                 getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
                 getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
                 getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
 
-                if (mWakeLock != null && mWakeLock.isHeld())
-                {
+                if (mWakeLock != null && mWakeLock.isHeld()) {
                     mWakeLock.release();
                 }
+                stopPlayer();
             }
         };
         new Handler().postDelayed(releaseWakelock, WAKELOCK_TIMEOUT);
@@ -87,8 +62,7 @@ public class PlayAlarmScreenActivity extends AppCompatActivity
 
     @SuppressWarnings("deprecation")
     @Override
-    protected void onResume()
-    {
+    protected void onResume() {
         super.onResume();
         // Set the window to keep screen on
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
@@ -98,41 +72,60 @@ public class PlayAlarmScreenActivity extends AppCompatActivity
 
         // Acquire wakelock
         PowerManager pm = (PowerManager) getApplicationContext().getSystemService(Context.POWER_SERVICE);
-        if (mWakeLock == null)
-        {
+        if (mWakeLock == null) {
             mWakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK | PowerManager.SCREEN_BRIGHT_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, TAG);
         }
-        if (!mWakeLock.isHeld())
-        {
+        if (!mWakeLock.isHeld()) {
             mWakeLock.acquire();
             Log.i(TAG, "Wakelock aquired!!");
         }
     }
 
     @Override
-    protected void onPause()
-    {
+    protected void onPause() {
         super.onPause();
-        if (mWakeLock != null && mWakeLock.isHeld())
-        {
+        if (mWakeLock != null && mWakeLock.isHeld()) {
             mWakeLock.release();
             Log.i(TAG, "Wakelock released!!");
         }
+        stopPlayer();
     }
 
-    public void onDismissClick(View view)
-    {
+    private void startPlayer(String tone) {
+        //Play alarm tone
+        if (mPlayer != null)
+            return;
+
+        Log.d(TAG, "Player start");
+        mPlayer = new MediaPlayer();
+        try {
+            if (tone != null && !tone.equals("")) {
+                Uri toneUri = Uri.parse(tone);
+                if (toneUri != null) {
+                    mPlayer.setDataSource(this, toneUri);
+                    mPlayer.setAudioStreamType(AudioManager.STREAM_ALARM);
+                    mPlayer.setLooping(true);
+                    mPlayer.prepare();
+                    mPlayer.start();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void stopPlayer() {
+        if (mPlayer == null)
+            return;
+
+        Log.d(TAG, "Player stop");
         mPlayer.stop();
         mPlayer.release();
+        mPlayer = null;
+    }
+
+    public void onDismissClick(View view) {
         finish();
-    }
-
-    @Override
-    public void onBackPressed()
-    {
-        mPlayer.stop();
-        mPlayer.release();
-        super.onBackPressed();
     }
 
 }

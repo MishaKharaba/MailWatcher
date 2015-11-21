@@ -143,15 +143,14 @@ public class AlertService extends IntentService {
             alert.historyId = historyId;
             dbHelper.updateAlert(alert);
         }
-        List<MailMessageRec> msgList = new ArrayList<>();
+        List<String> msgIdList = new ArrayList<>();
         boolean wasAlert = false;
         GmailReader.HistoryRec historyRec = reader.getHistory(alert.historyId, alert.labelId, 1024);
         for (History history : historyRec.list) {
             List<HistoryMessageAdded> addedMessaged = history.getMessagesAdded();
             if (addedMessaged != null && addedMessaged.size() > 0) {
                 for (HistoryMessageAdded added : addedMessaged) {
-                    MailMessageRec msg = new MailMessageRec(added.getMessage());
-                    msgList.add(msg);
+                    msgIdList.add(added.getMessage().getId());
                     wasAlert = true;
                 }
             }
@@ -159,15 +158,16 @@ public class AlertService extends IntentService {
             List<HistoryLabelAdded> addedLabels = history.getLabelsAdded();
             if (addedLabels != null && addedLabels.size() > 0) {
                 for (HistoryLabelAdded added : addedLabels) {
-                    MailMessageRec msg = new MailMessageRec(added.getMessage());
-                    msgList.add(msg);
+                    msgIdList.add(added.getMessage().getId());
                     wasAlert = true;
                 }
             }
         }
 
         if (wasAlert) {
-            startAlert(alert, msgList.get(0));
+            Message msg = reader.getMessage(msgIdList.get(0));
+            MailMessageRec msgRec = new MailMessageRec(msg);
+            startAlert(alert, msgRec);
         }
 
         alert.historyId = historyRec.historyId.toString();
@@ -212,28 +212,28 @@ public class AlertService extends IntentService {
 
         EasSyncCommand syncCommands = new EasSyncCommand();
         syncCommands.setSyncKey(alert.historyId);
-        List<MailMessageRec> msgList = new ArrayList<>();
+        List<MailMessageRec> msgRecs = new ArrayList<>();
         boolean wasAlert = false;
         do {
             syncCommands = con.getFolderSyncCommands(policyKey, alert.labelId, syncCommands.getSyncKey(), 512);
             if (syncCommands.getAdded().size() > 0) {
                 for (EasSyncCommand.Command cmd : syncCommands.getAdded()) {
-                    MailMessageRec msg = new MailMessageRec(cmd.getMessage());
-                    msgList.add(msg);
+                    MailMessageRec msgRec = new MailMessageRec(cmd.getMessage());
+                    msgRecs.add(msgRec);
                 }
                 wasAlert = true;
             }
         } while (syncCommands.allSize() > 0);
 
         if (wasAlert) {
-            startAlert(alert, msgList.get(0));
+            startAlert(alert, msgRecs.get(0));
         }
 
         alert.historyId = syncCommands.getSyncKey();
         Log.i(TAG, "Last exchange sync key ID " + alert.historyId);
     }
 
-    private void startAlert(AlertModel alert, MailMessageRec msg) {
+    private void startAlert(AlertModel alert, MailMessageRec msgRec) {
         Log.i(TAG, "Starting play alarm screen");
         alert.lastAlarmDate = alert.lastCheckDate;
         Intent intent = new Intent(this, PlayAlarmScreenActivity.class);

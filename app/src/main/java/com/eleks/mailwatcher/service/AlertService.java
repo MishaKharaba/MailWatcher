@@ -242,6 +242,7 @@ public class AlertService extends IntentService {
         intent.putExtra(AlertDBHelper.Alert.COLUMN_USER_ACCOUNT, alert.userAccount);
         intent.putExtra(AlertDBHelper.Alert.COLUMN_LABEL_NAME, alert.labelName);
         intent.putExtra(AlertDBHelper.Alert.COLUMN_ALARM_TONE, alert.alarmTone.toString());
+        intent.putExtra(PlayAlarmScreenActivity.KEY_MAIL_MESSAGE, msgRec);
         startActivity(intent);
     }
 }

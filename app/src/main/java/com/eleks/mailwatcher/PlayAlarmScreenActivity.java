@@ -9,12 +9,14 @@ import android.os.Handler;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.eleks.mailwatcher.model.AlertDBHelper;
+import com.eleks.mailwatcher.model.MailMessageRec;
 
 public class PlayAlarmScreenActivity extends AppCompatActivity {
     public final String TAG = this.getClass().getSimpleName();
@@ -22,7 +24,8 @@ public class PlayAlarmScreenActivity extends AppCompatActivity {
     private WakeLock mWakeLock;
     private MediaPlayer mPlayer;
 
-    private static final int WAKELOCK_TIMEOUT = 60 * 1000;
+    public static final String KEY_MAIL_MESSAGE = "MAIL_MESSAGE";
+    public static final int WAKELOCK_TIMEOUT = 60 * 1000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,12 +36,20 @@ public class PlayAlarmScreenActivity extends AppCompatActivity {
         String mail = getIntent().getStringExtra(AlertDBHelper.Alert.COLUMN_USER_ACCOUNT);
         String label = getIntent().getStringExtra(AlertDBHelper.Alert.COLUMN_LABEL_NAME);
         String tone = getIntent().getStringExtra(AlertDBHelper.Alert.COLUMN_ALARM_TONE);
+        MailMessageRec msgRec = (MailMessageRec) getIntent().getParcelableExtra(KEY_MAIL_MESSAGE);
+
         TextView tvName = (TextView) findViewById(R.id.alarm_name);
         tvName.setText(name);
         TextView tvMail = (TextView) findViewById(R.id.alarm_mail);
         tvMail.setText(mail);
         TextView tvLabel = (TextView) findViewById(R.id.alarm_label);
         tvLabel.setText(label);
+        TextView tvFrom = (TextView) findViewById(R.id.mail_from);
+        tvFrom.setText(msgRec != null ? msgRec.getFrom() : "");
+        TextView tvTo = (TextView) findViewById(R.id.mail_to);
+        tvTo.setText(msgRec != null ? msgRec.getTo() : "");
+        TextView tvSubject = (TextView) findViewById(R.id.mail_subject);
+        tvSubject.setText(msgRec != null ? msgRec.getSubject() : "");
         startPlayer(tone);
 
 
@@ -91,11 +102,19 @@ public class PlayAlarmScreenActivity extends AppCompatActivity {
         stopPlayer();
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        //if (mPlayer == null)
+            outState.putCharSequence(AlertDBHelper.Alert.COLUMN_ALARM_TONE, null);
+        super.onSaveInstanceState(outState);
+    }
+
     private void startPlayer(String tone) {
         //Play alarm tone
         if (mPlayer != null)
             return;
-
+        if (TextUtils.isEmpty(tone))
+            return;
         Log.d(TAG, "Player start");
         mPlayer = new MediaPlayer();
         try {

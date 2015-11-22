@@ -94,4 +94,11 @@
     <string name="title_pick_account">Select Account</string>
     <string name="err_no_active_network">No active network</string>
     <string name="select">Select</string>
+
+    <string name="none">(none)</string>
+    <string name="account">Account:</string>
+    <string name="folder">Folder:</string>
+    <string name="from">From:</string>
+    <string name="to">To:</string>
+    <string name="subject">Subject:</string>
 </resources>

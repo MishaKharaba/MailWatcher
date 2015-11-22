@@ -1,5 +1,8 @@
 package com.eleks.mailwatcher.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.api.services.gmail.model.HistoryMessageAdded;
 import com.google.api.services.gmail.model.Message;
 import com.google.api.services.gmail.model.MessagePartHeader;
@@ -8,7 +11,7 @@ import java.util.List;
 
 import ExchangeActiveSync.EasMessage;
 
-public class MailMessageRec {
+public class MailMessageRec implements Parcelable {
     private final String to;
     private final String from;
     private final String subject;
@@ -46,6 +49,24 @@ public class MailMessageRec {
         this.subject = subject;
     }
 
+    protected MailMessageRec(Parcel in) {
+        to = in.readString();
+        from = in.readString();
+        subject = in.readString();
+    }
+
+    public static final Creator<MailMessageRec> CREATOR = new Creator<MailMessageRec>() {
+        @Override
+        public MailMessageRec createFromParcel(Parcel in) {
+            return new MailMessageRec(in);
+        }
+
+        @Override
+        public MailMessageRec[] newArray(int size) {
+            return new MailMessageRec[size];
+        }
+    };
+
     public String getTo() {
         return to;
     }
@@ -58,4 +79,15 @@ public class MailMessageRec {
         return subject;
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(to);
+        dest.writeString(from);
+        dest.writeString(subject);
+    }
 }

@@ -1,55 +1,122 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:stretchColumns="*">
 
-    <TextView
-        android:id="@+id/alarm_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="28dp"
-        android:text="@string/mail_alert"
-        android:textSize="38sp"/>
+    <TableRow>
 
-    <TextView
-        android:id="@+id/alarm_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/alarm_title"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="28dp"
-        android:textSize="24sp"
-        android:text="Source"/>
-    <TextView
-        android:id="@+id/alarm_mail"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/alarm_name"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="28dp"
-        android:textSize="24sp"
-        android:text="@string/email"/>
-    <TextView
-        android:id="@+id/alarm_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/alarm_mail"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="28dp"
-        android:textSize="24sp"
-        android:text="Label"/>
+        <TextView
+            android:id="@+id/alarm_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_span="8"
+            android:gravity="center"
+            android:text="@string/mail_alert"
+            android:textSize="32sp"
+            android:textStyle="bold" />
+    </TableRow>
 
-    <Button
-        android:id="@+id/alarm_screen_button"
-        android:layout_width="fill_parent"
-        android:layout_height="128dp"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_margin="16dp"
-        android:onClick="onDismissClick"
-        android:text="@string/dismiss"
-        android:textSize="38sp"/>
+    <TableRow>
 
-</RelativeLayout>
+        <TextView
+            android:id="@+id/alarm_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_span="8"
+            android:gravity="center"
+            android:text="Source"
+            android:textSize="24sp" />
+    </TableRow>
+
+    <TableRow android:layout_marginTop="16dp">
+
+        <TextView
+            android:text="@string/account"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/alarm_mail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_span="7"
+            android:text="@string/none" />
+
+    </TableRow>
+
+    <TableRow android:layout_marginTop="8dp">
+
+        <TextView
+            android:text="@string/folder"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/alarm_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_span="7"
+            android:text="@string/none" />
+
+    </TableRow>
+
+    <TableRow android:layout_marginTop="16dp">
+
+        <TextView
+            android:text="@string/from"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/mail_from"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_span="7"
+            android:text="@string/none" />
+
+    </TableRow>
+
+    <TableRow android:layout_marginTop="8dp">
+
+        <TextView
+            android:text="@string/to"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/mail_to"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_span="7"
+            android:text="@string/none" />
+
+    </TableRow>
+
+    <TableRow android:layout_marginTop="8dp">
+
+        <TextView
+            android:text="@string/subject"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/mail_subject"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_span="7"
+            android:text="@string/none" />
+
+    </TableRow>
+
+    <TableRow android:layout_marginTop="32dp">
+
+        <Button
+            android:id="@+id/alarm_screen_button"
+            android:layout_width="fill_parent"
+            android:layout_height="80dp"
+            android:layout_margin="16dp"
+            android:layout_span="8"
+            android:onClick="onDismissClick"
+            android:text="@string/dismiss"
+            android:textSize="38sp" />
+    </TableRow>
+
+</TableLayout>

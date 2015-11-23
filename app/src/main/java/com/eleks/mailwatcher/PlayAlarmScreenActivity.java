@@ -23,13 +23,18 @@ public class PlayAlarmScreenActivity extends AppCompatActivity {
 
     private WakeLock mWakeLock;
     private MediaPlayer mPlayer;
+    private boolean wasPlayed = false;
 
     public static final String KEY_MAIL_MESSAGE = "MAIL_MESSAGE";
+    private static final String KEY_WAS_PLAYED = "WAS_PLAYED";
     public static final int WAKELOCK_TIMEOUT = 60 * 1000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            wasPlayed = savedInstanceState.getBoolean(KEY_WAS_PLAYED);
+        }
         setContentView(R.layout.activity_play_alarm_screen);
 
         String name = getIntent().getStringExtra(AlertDBHelper.Alert.COLUMN_NAME);
@@ -50,8 +55,9 @@ public class PlayAlarmScreenActivity extends AppCompatActivity {
         tvTo.setText(msgRec != null ? msgRec.getTo() : "");
         TextView tvSubject = (TextView) findViewById(R.id.mail_subject);
         tvSubject.setText(msgRec != null ? msgRec.getSubject() : "");
-        startPlayer(tone);
 
+        setVolumeControlStream(AudioManager.STREAM_ALARM);
+        startPlayer(tone);
 
         //Ensure wakelock release
         Runnable releaseWakelock = new Runnable() {
@@ -105,7 +111,7 @@ public class PlayAlarmScreenActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         //if (mPlayer == null)
-            outState.putCharSequence(AlertDBHelper.Alert.COLUMN_ALARM_TONE, null);
+        outState.putBoolean(KEY_WAS_PLAYED, wasPlayed);
         super.onSaveInstanceState(outState);
     }
 
@@ -113,7 +119,7 @@ public class PlayAlarmScreenActivity extends AppCompatActivity {
         //Play alarm tone
         if (mPlayer != null)
             return;
-        if (TextUtils.isEmpty(tone))
+        if (wasPlayed)
             return;
         Log.d(TAG, "Player start");
         mPlayer = new MediaPlayer();
@@ -134,6 +140,7 @@ public class PlayAlarmScreenActivity extends AppCompatActivity {
     }
 
     private void stopPlayer() {
+        wasPlayed = true;
         if (mPlayer == null)
             return;
 

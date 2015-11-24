@@ -20,14 +20,14 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.eleks.mailwatcher.model.AlertDBHelper;
+import com.eleks.mailwatcher.model.DBHelper;
 import com.eleks.mailwatcher.model.AlertModel;
 import com.eleks.mailwatcher.model.LabelRec;
 
 import java.util.List;
 
 public class AlertDetailsActivity extends AppCompatActivity implements IAccountSelector.Result {
-    private AlertDBHelper dbHelper = new AlertDBHelper(this);
+    private DBHelper dbHelper = new DBHelper(this);
     private AlertModel alert;
     private GmailAccountSelector gmailSelector;
     private ExchangeAccountSelector exchangeSelector;

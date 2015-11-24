@@ -15,9 +15,10 @@ import com.eleks.mailwatcher.EHelper;
 import com.eleks.mailwatcher.PlayAlarmScreenActivity;
 import com.eleks.mailwatcher.R;
 import com.eleks.mailwatcher.authentification.ExchangeAuthenticator;
-import com.eleks.mailwatcher.model.AlertDBHelper;
+import com.eleks.mailwatcher.model.DBHelper;
 import com.eleks.mailwatcher.model.AlertModel;
 import com.eleks.mailwatcher.model.MailMessageRec;
+import com.eleks.mailwatcher.model.MessageModel;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException;
 import com.google.api.client.util.ExponentialBackOff;
@@ -39,14 +40,14 @@ import ExchangeActiveSync.EasSyncCommand;
 public class AlertService extends IntentService {
     public final static String TAG = AlertService.class.getSimpleName();
 
-    private AlertDBHelper dbHelper = new AlertDBHelper(this);
+    private DBHelper dbHelper = new DBHelper(this);
 
     public AlertService() {
         super("MailWatcher.AlertService");
     }
 
     public static void update(Context context) {
-        AlertDBHelper dbHelper = new AlertDBHelper(context);
+        DBHelper dbHelper = new DBHelper(context);
         boolean hasActiveAlerts = dbHelper.hasActiveAlerts();
         if (hasActiveAlerts)
             WakeupReceiver.activate(context);
@@ -58,10 +59,16 @@ public class AlertService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         try {
             Log.i(TAG, "Wakeup event received");
+            dbHelper.beginTransaction();
             try {
-                run();
-            } catch (Exception e) {
-                Log.e(TAG, "run()", e);
+                try {
+                    run();
+                    dbHelper.commitTransaction();
+                } catch (Exception e) {
+                    Log.e(TAG, "run()", e);
+                }
+            } finally {
+                dbHelper.endTransaction();
             }
         } finally {
             WakeupReceiver.completeWakefulIntent(intent);
@@ -204,9 +211,18 @@ public class AlertService extends IntentService {
 
         if (alert.historyId == null) {
             String syncKey = con.getFolderSyncKey(policyKey, alert.labelId);
-            syncKey = con.getFolderLastSyncKey(policyKey, alert.labelId, syncKey);
+            EasSyncCommand syncCmd = con.getFolderLastSyncKey(policyKey, alert.labelId, syncKey);
+            syncKey = syncCmd.getSyncKey();
             alert.historyId = syncKey;
             Log.i(TAG, "Init exchange sync key ID " + alert.historyId);
+            if (syncCmd.getLastAdded() != null) {
+                MessageModel msgModel = new MessageModel();
+                MailMessageRec msgRec = new MailMessageRec(syncCmd.getLastAdded().getMessage());
+                msgModel.Update(msgRec);
+                msgModel.alertId = alert.id;
+                dbHelper.createMessage(msgModel);
+                alert.lastMessageId = msgModel.id;
+            }
             dbHelper.updateAlert(alert);
         }
 
@@ -238,10 +254,10 @@ public class AlertService extends IntentService {
         alert.lastAlarmDate = alert.lastCheckDate;
         Intent intent = new Intent(this, PlayAlarmScreenActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.putExtra(AlertDBHelper.Alert.COLUMN_NAME, alert.name);
-        intent.putExtra(AlertDBHelper.Alert.COLUMN_USER_ACCOUNT, alert.userAccount);
-        intent.putExtra(AlertDBHelper.Alert.COLUMN_LABEL_NAME, alert.labelName);
-        intent.putExtra(AlertDBHelper.Alert.COLUMN_ALARM_TONE, alert.alarmTone.toString());
+        intent.putExtra(AlertModel.NAME, alert.name);
+        intent.putExtra(AlertModel.USER_ACCOUNT, alert.userAccount);
+        intent.putExtra(AlertModel.LABEL_NAME, alert.labelName);
+        intent.putExtra(AlertModel.TONE, alert.alarmTone.toString());
         intent.putExtra(PlayAlarmScreenActivity.KEY_MAIL_MESSAGE, msgRec);
         startActivity(intent);
     }

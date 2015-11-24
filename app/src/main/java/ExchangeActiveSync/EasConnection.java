@@ -204,15 +204,21 @@ public class EasConnection {
         return fi.syncKey;
     }
 
-    public String getFolderLastSyncKey(long policyKey, String folderId, String syncKey) throws Exception {
+    public EasSyncCommand getFolderLastSyncKey(long policyKey, String folderId, String syncKey) throws Exception {
         EasSyncCommand syncCommands = new EasSyncCommand();
         syncCommands.setSyncKey(syncKey);
-        do {
-            syncCommands = getFolderSyncCommands(policyKey, folderId, syncCommands.getSyncKey(), 512);
-        } while (syncCommands.allSize() > 0);
+        while (true) {
+            EasSyncCommand tmpSyncCommands = getFolderSyncCommands(policyKey, folderId, syncCommands.getSyncKey(), 512);
+            syncCommands.setSyncKey(tmpSyncCommands.getSyncKey());
+            if (tmpSyncCommands.allSize() == 0)
+                break;
+            syncCommands.getAdded().addAll(tmpSyncCommands.getAdded());
+            syncCommands.getUpdated().addAll(tmpSyncCommands.getUpdated());
+            syncCommands.getDeleted().addAll(tmpSyncCommands.getDeleted());
+        }
         Log.d(TAG, String.format("getFolderLastSyncKey: policy=%d, folderId=%s, syncKey=%s, lastSyncKey=%s",
                 policyKey, folderId, syncKey, syncCommands.getSyncKey()));
-        return syncCommands.getSyncKey();
+        return syncCommands;
     }
 
     public EasSyncCommand getFolderSyncCommands(long policyKey, String folderId, String syncKey,

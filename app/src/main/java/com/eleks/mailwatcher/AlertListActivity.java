@@ -13,7 +13,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
 
-import com.eleks.mailwatcher.model.AlertDBHelper;
+import com.eleks.mailwatcher.model.DBHelper;
 import com.eleks.mailwatcher.model.AlertModel;
 import com.eleks.mailwatcher.service.AlertService;
 
@@ -22,7 +22,7 @@ public class AlertListActivity extends AppCompatActivity {
 
     private ListView mListView;
     private AlertListAdapter mAdapter;
-    private AlertDBHelper dbHelper = new AlertDBHelper(this);
+    private DBHelper dbHelper = new DBHelper(this);
     private BroadcastReceiver broadcastReceiver;
 
     @Override

@@ -56,6 +56,10 @@ public class EasSyncCommand {
         return deleted;
     }
 
+    public Command getLastAdded() {
+        return getAdded().size() > 0 ? getAdded().get(getAdded().size() - 1) : null;
+    }
+
     public String getSyncKey() {
         return syncKey;
     }

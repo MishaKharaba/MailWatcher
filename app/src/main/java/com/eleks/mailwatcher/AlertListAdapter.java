@@ -13,16 +13,20 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.eleks.mailwatcher.model.AlertModel;
+import com.eleks.mailwatcher.model.DBHelper;
+import com.eleks.mailwatcher.model.MessageModel;
 
 import java.util.List;
 
 public class AlertListAdapter extends BaseAdapter {
     private final Context mContext;
     private List<AlertModel> mAlerts;
+    private final DBHelper dbHelper;
 
     public AlertListAdapter(Context context, List<AlertModel> alerts) {
         mContext = context;
         mAlerts = alerts;
+        dbHelper = new DBHelper(context);
     }
 
     public void setAlerts(List<AlertModel> alerts) {
@@ -58,6 +62,7 @@ public class AlertListAdapter extends BaseAdapter {
         }
 
         AlertModel alert = (AlertModel) getItem(position);
+        MessageModel msgModel = dbHelper.findMessage(alert.lastMessageId);
 
         TextView txtName = (TextView) view.findViewById(R.id.alert_item_name);
         txtName.setText(alert.name);

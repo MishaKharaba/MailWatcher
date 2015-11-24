@@ -9,13 +9,12 @@ import android.os.Handler;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 
-import com.eleks.mailwatcher.model.AlertDBHelper;
+import com.eleks.mailwatcher.model.AlertModel;
 import com.eleks.mailwatcher.model.MailMessageRec;
 
 public class PlayAlarmScreenActivity extends AppCompatActivity {
@@ -37,10 +36,10 @@ public class PlayAlarmScreenActivity extends AppCompatActivity {
         }
         setContentView(R.layout.activity_play_alarm_screen);
 
-        String name = getIntent().getStringExtra(AlertDBHelper.Alert.COLUMN_NAME);
-        String mail = getIntent().getStringExtra(AlertDBHelper.Alert.COLUMN_USER_ACCOUNT);
-        String label = getIntent().getStringExtra(AlertDBHelper.Alert.COLUMN_LABEL_NAME);
-        String tone = getIntent().getStringExtra(AlertDBHelper.Alert.COLUMN_ALARM_TONE);
+        String name = getIntent().getStringExtra(AlertModel.NAME);
+        String mail = getIntent().getStringExtra(AlertModel.USER_ACCOUNT);
+        String label = getIntent().getStringExtra(AlertModel.LABEL_NAME);
+        String tone = getIntent().getStringExtra(AlertModel.TONE);
         MailMessageRec msgRec = (MailMessageRec) getIntent().getParcelableExtra(KEY_MAIL_MESSAGE);
 
         TextView tvName = (TextView) findViewById(R.id.alarm_name);

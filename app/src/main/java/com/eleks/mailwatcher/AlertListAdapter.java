@@ -62,7 +62,6 @@ public class AlertListAdapter extends BaseAdapter {
         }
 
         AlertModel alert = (AlertModel) getItem(position);
-        MessageModel msgModel = dbHelper.findMessage(alert.lastMessageId);
 
         TextView txtName = (TextView) view.findViewById(R.id.alert_item_name);
         txtName.setText(alert.name);
@@ -87,6 +86,14 @@ public class AlertListAdapter extends BaseAdapter {
         } else {
             txtLastChecked.setText("");
             txtLastChecked.setVisibility(View.GONE);
+        }
+
+        MessageModel msg = dbHelper.findMessage(alert.lastMessageId);
+        view.findViewById(R.id.mail_group).setVisibility(msg != null ? View.VISIBLE : View.GONE);
+        if (msg != null) {
+            ((TextView) view.findViewById(R.id.mail_from)).setText(msg.from);
+            ((TextView) view.findViewById(R.id.mail_to)).setText(msg.to);
+            ((TextView) view.findViewById(R.id.mail_subject)).setText(msg.subject);
         }
 
         TextView txtError = (TextView) view.findViewById(R.id.error);

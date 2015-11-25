@@ -26,7 +26,8 @@ public class MessageModel {
     }
 
     public static MessageModel Create(Cursor c) {
-        MessageModel m = new MessageModel(c.getLong(c.getColumnIndex(_ID)));
+        long id = c.getLong(c.getColumnIndex(_ID));
+        MessageModel m = new MessageModel(id);
         m.alertId = c.getLong(c.getColumnIndex(ALERT_ID));
         m.from = c.getString(c.getColumnIndex(FROM));
         m.to = c.getString(c.getColumnIndex(TO));
@@ -42,7 +43,7 @@ public class MessageModel {
 
     public ContentValues toContentValues() {
         ContentValues cv = new ContentValues();
-        cv.put(_ID, id);
+        //cv.put(_ID, id);
         cv.put(ALERT_ID, alertId);
         cv.put(FROM, from);
         cv.put(TO, to);

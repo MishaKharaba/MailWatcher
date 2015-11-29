@@ -236,11 +236,8 @@ public class AlertDetailsActivity extends AppCompatActivity implements IAccountS
             }
             case R.id.action_save_alert_details: {
                 viewToAlert(alert);
-                if (alert.id < 0) {
-                    dbHelper.createAlert(alert);
-                } else {
-                    dbHelper.updateAlert(alert);
-                }
+                dbHelper.updateAlertDetails(alert.id, alert.name, alert.alarmTone,
+                        alert.accountType, alert.userAccount, alert.labelId, alert.labelName);
                 setResult(RESULT_OK);
                 finish();
                 return true;

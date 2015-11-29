@@ -15,6 +15,7 @@ import android.widget.ToggleButton;
 import com.eleks.mailwatcher.model.AlertModel;
 import com.eleks.mailwatcher.model.DBHelper;
 import com.eleks.mailwatcher.model.MessageModel;
+import com.google.api.client.util.DateTime;
 
 import java.util.List;
 
@@ -78,14 +79,12 @@ public class AlertListAdapter extends BaseAdapter {
 
         TextView txtLastChecked = (TextView) view.findViewById(R.id.last_checked);
         java.text.DateFormat df = DateFormat.getDateFormat(view.getContext());
-        java.text.DateFormat tf = DateFormat.getTimeFormat(view.getContext());
-        if (alert.lastCheckDate != null && alert.historyId != null) {
-            String msg = df.format(alert.lastCheckDate) + " " + tf.format(alert.lastCheckDate);
+        if (alert.lastCheckDate != null) {
+            String msg = df.format(alert.lastCheckDate) + " " +
+                    DateFormat.format("HH:mm:ss", alert.lastCheckDate);
             txtLastChecked.setText(msg);
-            txtLastChecked.setVisibility(View.VISIBLE);
         } else {
-            txtLastChecked.setText("");
-            txtLastChecked.setVisibility(View.GONE);
+            txtLastChecked.setText(R.string.never);
         }
 
         MessageModel msg = dbHelper.findMessage(alert.lastMessageId);

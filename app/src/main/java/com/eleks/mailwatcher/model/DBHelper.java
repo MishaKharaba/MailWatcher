@@ -10,6 +10,7 @@ import android.net.Uri;
 import com.google.api.services.gmail.model.Message;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -96,7 +97,7 @@ public class DBHelper extends SQLiteOpenHelper {
         return id;
     }
 
-    public void updateAlert(AlertModel model) {
+    protected void updateAlert(AlertModel model) {
         ContentValues values = model.toContentValues();
         getWritableDatabase().update(AlertModel.TABLE_NAME, values,
                 AlertModel._ID + " = ?", new String[]{String.valueOf(model.id)});
@@ -194,5 +195,65 @@ public class DBHelper extends SQLiteOpenHelper {
         }
         c.close();
         return model;
+    }
+
+    //complex methods
+    public void setError(long id, String errMessage, boolean stop) {
+        AlertModel alert = getAlert(id);
+        alert.lastCheckDate = Calendar.getInstance().getTime();
+        alert.lastError = errMessage;
+        if (stop) {
+            alert.isEnabled = false;
+        }
+        updateAlert(alert);
+    }
+
+    public void updateAlertHistory(long id, String historyId, MailMessageRec msgRec) {
+        beginTransaction();
+        try {
+            AlertModel alert = getAlert(id);
+            alert.lastCheckDate = Calendar.getInstance().getTime();
+            alert.historyId = historyId;
+            alert.lastError = null;
+            if (msgRec != null) {
+                MessageModel msgModel = new MessageModel();
+                msgModel.Update(msgRec);
+                msgModel.alertId = alert.id;
+                createMessage(msgModel);
+                alert.lastMessageId = msgModel.id;
+            }
+            updateAlert(alert);
+            commitTransaction();
+        } finally {
+            endTransaction();
+        }
+    }
+
+    public void updateAlertDetails(long id, String name, Uri tone,
+                                   AlertModel.AccountType accountType, String account,
+                                   String labelId, String labelName) {
+        AlertModel alert = id > 0 ? getAlert(id) : new AlertModel(-1);
+        alert.name = name;
+        alert.alarmTone = tone;
+        alert.accountType = accountType;
+        alert.userAccount = account;
+        alert.labelId = labelId;
+        alert.labelName = labelName;
+        if (id > 0) {
+            updateAlert(alert);
+        } else {
+            createAlert(alert);
+        }
+    }
+
+    public void setEnabled(long id, boolean isEnabled) {
+        AlertModel alert = getAlert(id);
+        alert.isEnabled = isEnabled;
+        if (isEnabled) {
+            alert.lastError = null;
+        } else {
+            alert.historyId = null;
+        }
+        updateAlert(alert);
     }
 }

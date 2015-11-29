@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
@@ -18,6 +19,7 @@ import com.eleks.mailwatcher.model.AlertModel;
 import com.eleks.mailwatcher.service.AlertService;
 
 public class AlertListActivity extends AppCompatActivity {
+    public final static String TAG = AlertListActivity.class.getSimpleName();
     public final static String REFRESH = "REFRESH";
 
     private ListView mListView;
@@ -43,6 +45,7 @@ public class AlertListActivity extends AppCompatActivity {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (intent.getAction().equals(REFRESH)) {
+                    Log.d(TAG, "Update alert list on REFRESH");
                     updateAlertList(false);
                 }
             }
@@ -95,12 +98,7 @@ public class AlertListActivity extends AppCompatActivity {
     }
 
     public void setAlertEnabled(long id, boolean isEnabled) {
-        AlertModel alert = dbHelper.getAlert(id);
-        alert.isEnabled = isEnabled;
-        if (!isEnabled) {
-            alert.historyId = null;
-        }
-        dbHelper.updateAlert(alert);
+        dbHelper.setEnabled(id, isEnabled);
         updateAlertList(true);
     }
 

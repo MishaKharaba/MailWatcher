@@ -2,12 +2,19 @@ package com.eleks.mailwatcher.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
 import com.google.api.services.gmail.model.HistoryMessageAdded;
 import com.google.api.services.gmail.model.Message;
 import com.google.api.services.gmail.model.MessagePartHeader;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.annotation.RegEx;
 
 import ExchangeActiveSync.EasMessage;
 
@@ -16,10 +23,30 @@ public class MailMessageRec implements Parcelable {
     private final String from;
     private final String subject;
 
+    private HashSet<String> toArr;
+    private HashSet<String> fromArr;
+
     public MailMessageRec(String to, String from, String subject) {
         this.to = to;
         this.from = from;
         this.subject = subject;
+        toArr = extractMailAddresses(to);
+        fromArr = extractMailAddresses(from);
+    }
+
+    public static HashSet<String> extractMailAddresses(String addr) {
+        if (TextUtils.isEmpty(addr)) {
+            return null;
+        }
+        Pattern p = Pattern.compile("<([^<]+@[^>]+)>");
+        Matcher m = p.matcher(addr);
+
+        HashSet<String> addrList = new HashSet<>();
+        while (m.find()) {
+            addrList.add(m.group(1).toLowerCase());
+        }
+
+        return addrList;
     }
 
     public MailMessageRec(EasMessage easMsg) {
@@ -47,12 +74,16 @@ public class MailMessageRec implements Parcelable {
         this.to = to;
         this.from = from;
         this.subject = subject;
+        toArr = extractMailAddresses(to);
+        fromArr = extractMailAddresses(from);
     }
 
     protected MailMessageRec(Parcel in) {
         to = in.readString();
         from = in.readString();
         subject = in.readString();
+        toArr = extractMailAddresses(to);
+        fromArr = extractMailAddresses(from);
     }
 
     public static final Creator<MailMessageRec> CREATOR = new Creator<MailMessageRec>() {

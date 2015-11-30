@@ -103,4 +103,6 @@
     <string name="to">To:</string>
     <string name="subject">Subject:</string>
     <string name="last_check">Last check:</string>
+    <string name="filter_from">From filter:</string>
+    <string name="filter_to">To filter:</string>
 </resources>

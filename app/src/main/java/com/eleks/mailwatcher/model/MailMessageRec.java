@@ -121,4 +121,18 @@ public class MailMessageRec implements Parcelable {
         dest.writeString(from);
         dest.writeString(subject);
     }
+
+    public boolean checkFrom(String filterFrom) {
+        if (TextUtils.isEmpty(filterFrom)) {
+            return true;
+        }
+        return fromArr != null && fromArr.contains(filterFrom);
+    }
+
+    public boolean checkTo(String filterTo) {
+        if (TextUtils.isEmpty(filterTo)) {
+            return true;
+        }
+        return toArr != null && toArr.contains(filterTo);
+    }
 }

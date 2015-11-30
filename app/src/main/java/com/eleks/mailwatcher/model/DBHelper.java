@@ -15,7 +15,7 @@ import java.util.Date;
 import java.util.List;
 
 public class DBHelper extends SQLiteOpenHelper {
-    public static final int DATABASE_VERSION = 1;
+    public static final int DATABASE_VERSION = 2;
     public static final String DATABASE_NAME = "mail-watcher.db";
 
     public DBHelper(Context context) {
@@ -74,6 +74,17 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     private void upgrade2(SQLiteDatabase db) {
+        String sql = "ALTER TABLE " + AlertModel.TABLE_NAME + " ADD " +
+                AlertModel.FILTER_FROM + " TEXT";
+        db.execSQL(sql);
+
+        sql = "ALTER TABLE " + AlertModel.TABLE_NAME + " ADD " +
+                AlertModel.FILTER_TO + " TEXT";
+        db.execSQL(sql);
+
+        sql = "ALTER TABLE " + AlertModel.TABLE_NAME + " ADD " +
+                AlertModel.FILTER_SUBJECT + " TEXT";
+        db.execSQL(sql);
     }
 
     //transaction
@@ -231,7 +242,8 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public void updateAlertDetails(long id, String name, Uri tone,
                                    AlertModel.AccountType accountType, String account,
-                                   String labelId, String labelName) {
+                                   String labelId, String labelName,
+                                   String filterFrom, String filterTo, String filterSubject) {
         AlertModel alert = id > 0 ? getAlert(id) : new AlertModel(-1);
         alert.name = name;
         alert.alarmTone = tone;
@@ -239,6 +251,9 @@ public class DBHelper extends SQLiteOpenHelper {
         alert.userAccount = account;
         alert.labelId = labelId;
         alert.labelName = labelName;
+        alert.filterFrom = filterFrom;
+        alert.filterTo = filterTo;
+        alert.filterSubject = filterSubject;
         if (id > 0) {
             updateAlert(alert);
         } else {

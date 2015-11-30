@@ -130,9 +130,17 @@ public class AlertService extends IntentService {
 
         List<String> msgIdList = checkGmailAlert(alert, reader);
         if (msgIdList.size() > 0) {
-            MailMessageRec msgRec = new MailMessageRec(reader.getMessage(msgIdList.get(0)));
-            startAlert(alert, msgRec);
-            dbHelper.updateAlertHistory(alert.id, alert.historyId, msgRec);
+            MailMessageRec lastMsg = null;
+            for (String msgId : msgIdList) {
+                MailMessageRec msgRec = new MailMessageRec(reader.getMessage(msgId));
+                if (msgRec.checkFrom(alert.filterFrom) && msgRec.checkTo(alert.filterTo)) {
+                    lastMsg = msgRec;
+                }
+            }
+            if (lastMsg != null) {
+                startAlert(alert, lastMsg);
+            }
+            dbHelper.updateAlertHistory(alert.id, alert.historyId, lastMsg);
         } else {
             dbHelper.updateAlertHistory(alert.id, alert.historyId, null);
         }
@@ -207,9 +215,16 @@ public class AlertService extends IntentService {
 
         List<MailMessageRec> msgRecs = checkExchangeAlert(alert, con, policyKey);
         if (msgRecs.size() > 0) {
-            MailMessageRec msgRec = msgRecs.get(0);
-            startAlert(alert, msgRec);
-            dbHelper.updateAlertHistory(alert.id, alert.historyId, msgRecs.get(0));
+            MailMessageRec lastMsg = null;
+            for (MailMessageRec msgRec : msgRecs) {
+                if (msgRec.checkFrom(alert.filterFrom) && msgRec.checkTo(alert.filterTo)) {
+                    lastMsg = msgRec;
+                }
+            }
+            if (lastMsg != null) {
+                startAlert(alert, lastMsg);
+            }
+            dbHelper.updateAlertHistory(alert.id, alert.historyId, lastMsg);
         } else {
             dbHelper.updateAlertHistory(alert.id, alert.historyId, null);
         }

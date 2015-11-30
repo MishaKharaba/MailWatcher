@@ -123,6 +123,8 @@ public class AlertDetailsActivity extends AppCompatActivity implements IAccountS
                 alert.accountType == AlertModel.AccountType.gmail
                         ? R.id.gmail : R.id.exchange);
         accType.setChecked(true);
+        ((TextView) findViewById(R.id.filter_from)).setText(alert.filterFrom);
+        ((TextView) findViewById(R.id.filter_to)).setText(alert.filterTo);
     }
 
     private void viewToAlert(AlertModel alert) {
@@ -137,6 +139,8 @@ public class AlertDetailsActivity extends AppCompatActivity implements IAccountS
         alert.labelName = folderName.getText().toString();
         RadioButton accType = (RadioButton) findViewById(R.id.gmail);
         alert.accountType = getAccountType();
+        alert.filterFrom = ((TextView) findViewById(R.id.filter_from)).getText().toString();
+        alert.filterTo = ((TextView) findViewById(R.id.filter_to)).getText().toString();
     }
 
     private AlertModel.AccountType getAccountType() {
@@ -237,7 +241,8 @@ public class AlertDetailsActivity extends AppCompatActivity implements IAccountS
             case R.id.action_save_alert_details: {
                 viewToAlert(alert);
                 dbHelper.updateAlertDetails(alert.id, alert.name, alert.alarmTone,
-                        alert.accountType, alert.userAccount, alert.labelId, alert.labelName);
+                        alert.accountType, alert.userAccount, alert.labelId, alert.labelName,
+                        alert.filterFrom, alert.filterTo, alert.filterSubject);
                 setResult(RESULT_OK);
                 finish();
                 return true;

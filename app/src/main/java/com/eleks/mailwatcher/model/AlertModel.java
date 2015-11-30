@@ -35,6 +35,10 @@ public class AlertModel {
     public static final String LAST_ALARM_TS = "c_last_alarm_ts";
     public static final String LAST_ERROR = "c_last_error";
     public static final String LAST_MESSAGE_ID = "c_last_message_id";
+    public static final String FILTER_FROM = "c_filter_from";
+    public static final String FILTER_TO = "c_filter_to";
+    public static final String FILTER_SUBJECT = "c_filter_subject";
+
 
     public long id;
     public String name;
@@ -52,6 +56,10 @@ public class AlertModel {
     public String lastError;
 
     public Long lastMessageId;
+
+    public String filterFrom;
+    public String filterTo;
+    public String filterSubject;
 
     public AlertModel(long id) {
         this.id = id;
@@ -78,6 +86,10 @@ public class AlertModel {
         m.lastError = c.getString(c.getColumnIndex(LAST_ERROR));
         m.lastMessageId = c.isNull(c.getColumnIndex(LAST_MESSAGE_ID))
                 ? null : c.getLong(c.getColumnIndex(LAST_MESSAGE_ID));
+        m.filterFrom = c.getString(c.getColumnIndex(FILTER_FROM));
+        m.filterTo = c.getString(c.getColumnIndex(FILTER_TO));
+        m.filterSubject = c.getString(c.getColumnIndex(FILTER_SUBJECT));
+
         return m;
     }
 
@@ -105,6 +117,9 @@ public class AlertModel {
                 lastAlarmDate != null ? lastAlarmDate.getTime() : 0);
         values.put(LAST_ERROR, lastError);
         values.put(LAST_MESSAGE_ID, lastMessageId);
+        values.put(FILTER_FROM, filterFrom);
+        values.put(FILTER_TO, filterTo);
+        values.put(FILTER_SUBJECT, filterSubject);
         return values;
     }
 

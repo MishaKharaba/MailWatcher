@@ -122,17 +122,45 @@ public class MailMessageRec implements Parcelable {
         dest.writeString(subject);
     }
 
-    public boolean checkFrom(String filterFrom) {
-        if (TextUtils.isEmpty(filterFrom)) {
+    public boolean checkFrom(String[] mails) {
+        if (mails == null || mails.length == 0) {
             return true;
         }
-        return fromArr != null && fromArr.contains(filterFrom);
+        if (fromArr == null) {
+            return false;
+        }
+        for (String mail : mails) {
+            if (fromArr.contains(mail.toLowerCase())) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    public boolean checkTo(String filterTo) {
-        if (TextUtils.isEmpty(filterTo)) {
+    public boolean checkTo(String[] mails) {
+        if (mails == null || mails.length == 0) {
             return true;
         }
-        return toArr != null && toArr.contains(filterTo);
+        if (toArr == null) {
+            return false;
+        }
+        for (String mail : mails) {
+            if (toArr.contains(mail.toLowerCase())) {
+                return true;
+            }
+        }
+        return false;
     }
+
+    public boolean checkSubject(Pattern p) {
+        if (p == null) {
+            return true;
+        }
+        if (TextUtils.isEmpty(subject)) {
+            return false;
+        }
+        Matcher m = p.matcher(subject);
+        return m.matches();
+    }
+
 }

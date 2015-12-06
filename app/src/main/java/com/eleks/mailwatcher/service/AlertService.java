@@ -15,10 +15,9 @@ import com.eleks.mailwatcher.EHelper;
 import com.eleks.mailwatcher.PlayAlarmScreenActivity;
 import com.eleks.mailwatcher.R;
 import com.eleks.mailwatcher.authentification.ExchangeAuthenticator;
-import com.eleks.mailwatcher.model.DBHelper;
 import com.eleks.mailwatcher.model.AlertModel;
+import com.eleks.mailwatcher.model.DBHelper;
 import com.eleks.mailwatcher.model.MailMessageRec;
-import com.eleks.mailwatcher.model.MessageModel;
 import com.google.api.client.googleapis.extensions.android.accounts.GoogleAccountManager;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException;
 import com.google.api.services.gmail.model.History;
@@ -29,6 +28,7 @@ import com.google.api.services.gmail.model.Message;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import ExchangeActiveSync.EasConnection;
 import ExchangeActiveSync.EasSyncCommand;
@@ -116,6 +116,30 @@ public class AlertService extends IntentService {
         return null;
     }
 
+    private String[] splitMalList(String mails) {
+        if (TextUtils.isEmpty(mails)) {
+            return null;
+        }
+        return mails.split(",\\s*");
+    }
+
+    private Pattern makePattern(String subject) {
+        if (TextUtils.isEmpty(subject)) {
+            return null;
+        }
+        String[] parts = subject.split("\\*");
+        StringBuilder sb = new StringBuilder();
+        boolean bFirst = true;
+        for (String part : parts) {
+            sb.append(Pattern.quote(part));
+            if (!bFirst) {
+                sb.append("\\.*");
+            }
+            bFirst = false;
+        }
+        return Pattern.compile(sb.toString(), Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+    }
+
     private void processGmailAlert(AlertModel alert) throws Exception {
         Log.d(TAG, "processGmailAlert");
         AccountManager accountManager = AccountManager.get(getBaseContext());
@@ -131,9 +155,13 @@ public class AlertService extends IntentService {
         List<String> msgIdList = checkGmailAlert(alert, reader);
         if (msgIdList.size() > 0) {
             MailMessageRec lastMsg = null;
+            String[] fromList = splitMalList(alert.filterFrom);
+            String[] toList = splitMalList(alert.filterTo);
+            Pattern pSubject = makePattern(alert.filterSubject);
             for (String msgId : msgIdList) {
                 MailMessageRec msgRec = new MailMessageRec(reader.getMessage(msgId));
-                if (msgRec.checkFrom(alert.filterFrom) && msgRec.checkTo(alert.filterTo)) {
+                if (msgRec.checkFrom(fromList) && msgRec.checkTo(toList)
+                        && msgRec.checkSubject(pSubject)) {
                     lastMsg = msgRec;
                 }
             }
@@ -216,8 +244,12 @@ public class AlertService extends IntentService {
         List<MailMessageRec> msgRecs = checkExchangeAlert(alert, con, policyKey);
         if (msgRecs.size() > 0) {
             MailMessageRec lastMsg = null;
+            String[] fromList = splitMalList(alert.filterFrom);
+            String[] toList = splitMalList(alert.filterTo);
+            Pattern pSubject = makePattern(alert.filterSubject);
             for (MailMessageRec msgRec : msgRecs) {
-                if (msgRec.checkFrom(alert.filterFrom) && msgRec.checkTo(alert.filterTo)) {
+                if (msgRec.checkFrom(fromList) && msgRec.checkTo(toList)
+                        && msgRec.checkSubject(pSubject)) {
                     lastMsg = msgRec;
                 }
             }

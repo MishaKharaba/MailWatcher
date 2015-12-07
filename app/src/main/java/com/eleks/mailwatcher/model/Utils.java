@@ -18,12 +18,14 @@ public final class Utils {
         StringBuilder sb = new StringBuilder();
         boolean bFirst = true;
         for (String part : parts) {
-            sb.append(Pattern.quote(part));
             if (!bFirst) {
-                sb.append("\\.*");
+                sb.append(".*");
             }
+            sb.append(Pattern.quote(part));
             bFirst = false;
         }
+        if (subject.length() > 1 && subject.endsWith("*"))
+            sb.append(".*");
         return Pattern.compile(sb.toString(), Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
     }
 

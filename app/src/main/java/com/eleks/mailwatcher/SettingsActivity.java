@@ -39,7 +39,8 @@ import java.util.Map;
 public class SettingsActivity extends AppCompatPreferenceActivity {
     public final static String KEY_CHECK_MAIL_INTERVAL = "check_mail_interval";
 
-    private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new PreferenceChangeListener();
+    private static Preference.OnPreferenceChangeListener
+            sBindPreferenceSummaryToValueListener = new PreferenceChangeListener();
 
     /**
      * Helper method to determine if the device has an extra-large screen. For
@@ -214,16 +215,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                     bindPreferenceSummaryToValue(pref);
                 }
             }
-//            String prefNames = savedInstanceState.getString("bind_summary_preference_names", null);
-//            if (prefNames != null) {
-//                String[] prefNameArr = prefNames.split(",");
-//                for (String prefName : prefNameArr) {
-//                    Preference pref = findPreference(prefName);
-//                    if (pref != null) {
-//                        bindPreferenceSummaryToValue(pref);
-//                    }
-//                }
-//            }
         }
 
         @Override

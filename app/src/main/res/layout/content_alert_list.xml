@@ -5,7 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context=".AlertListActivity"
     tools:showIn="@layout/activity_alert_list">
 
     <ListView
@@ -15,5 +14,7 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:divider="@color/colorDivider"
-        android:dividerHeight="1dp"/>
+        android:dividerHeight="1dp"
+        tools:listitem="@layout/alert_list_item"
+        />
 </RelativeLayout>

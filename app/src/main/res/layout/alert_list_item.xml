@@ -1,89 +1,152 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="8dp">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
+    <LinearLayout
+        android:id="@+id/left_info"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="8dp">
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_toLeftOf="@+id/alert_item_toggle"
+        android:layout_toStartOf="@+id/alert_item_toggle"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/alert_item_name"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:hint="@string/alert_name"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
 
         <LinearLayout
-
-            android:id="@+id/left_info"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_toLeftOf="@+id/alert_item_toggle"
-            android:layout_toStartOf="@+id/alert_item_toggle"
-            android:orientation="vertical">
+            android:layout_marginTop="4dp">
 
             <TextView
-                android:id="@+id/alert_item_name"
-                android:layout_width="fill_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:layout_marginRight="8dp"
-                android:hint="@string/alert_name"
-                android:textSize="20sp"
+                android:text="@string/email"
                 android:textStyle="bold" />
 
+            <TextView
+                android:id="@+id/account_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_marginStart="8dp"
+                android:text="@string/not_selected" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/label_name"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/alert_label_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_marginStart="8dp"
+                android:text="@string/not_selected" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/alarm_tone"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/alarm_tone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_marginStart="8dp"
+                android:hint="@string/not_selected" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/last_check"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/last_checked"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_marginStart="8dp"
+                android:text="21.11.2015 00:00" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/mail_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="vertical">
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/email"
+                    android:text="@string/from"
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/account_name"
+                    android:id="@+id/mail_from"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="8dp"
                     android:layout_marginStart="8dp"
-                    android:text="@string/not_selected" />
+                    android:hint="@string/not_selected" />
+
             </LinearLayout>
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/label_name"
+                    android:text="@string/to"
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/alert_label_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginStart="8dp"
-                    android:text="@string/not_selected" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/alarm_tone"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/alarm_tone"
+                    android:id="@+id/mail_to"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="8dp"
@@ -92,114 +155,44 @@
             </LinearLayout>
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/last_check"
+                    android:text="@string/subject"
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/last_checked"
+                    android:id="@+id/mail_subject"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="8dp"
                     android:layout_marginStart="8dp"
-                    android:text="21.11.2015 00:00" />
-            </LinearLayout>
+                    android:hint="@string/not_selected" />
 
-            <LinearLayout
-                android:id="@+id/mail_group"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:orientation="vertical">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/from"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/mail_from"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="8dp"
-                        android:layout_marginStart="8dp"
-                        android:hint="@string/not_selected" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/to"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/mail_to"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="8dp"
-                        android:layout_marginStart="8dp"
-                        android:hint="@string/not_selected" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/subject"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/mail_subject"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="8dp"
-                        android:layout_marginStart="8dp"
-                        android:hint="@string/not_selected" />
-
-                </LinearLayout>
             </LinearLayout>
         </LinearLayout>
+    </LinearLayout>
 
-        <ToggleButton
-            android:id="@+id/alert_item_toggle"
-            android:layout_width="64dp"
-            android:layout_height="48dp"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/btn_toggle_bg"
-            android:checked="true"
-            android:textOff="OFF"
-            android:textOn="ON" />
+    <ToggleButton
+        android:id="@+id/alert_item_toggle"
+        android:layout_width="64dp"
+        android:layout_height="48dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/btn_toggle_bg"
+        android:checked="true"
+        android:textOff="OFF"
+        android:textOn="ON" />
 
-        <TextView
-            android:id="@+id/error"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/left_info"
-            android:textColor="@android:color/holo_red_dark" />
-    </RelativeLayout>
-
-</FrameLayout>
+    <TextView
+        android:id="@+id/error"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/left_info"
+        android:textColor="@android:color/holo_red_dark" />
+</RelativeLayout>
